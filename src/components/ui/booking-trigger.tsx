@@ -1,6 +1,7 @@
 "use client";
 
 import { openBooking } from "@/lib/cal";
+import { cn } from "@/lib/utils";
 
 /**
  * Renders its children as the click target and opens the Cal.com booking
@@ -15,7 +16,11 @@ export function BookingTrigger({
   className?: string;
 }) {
   return (
-    <button type="button" onClick={() => openBooking()} className={className}>
+    <button
+      type="button"
+      onClick={() => openBooking()}
+      className={cn("transition-transform duration-200 active:scale-[0.97]", className)}
+    >
       {children}
     </button>
   );

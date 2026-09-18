@@ -76,6 +76,7 @@ html {
   background: var(--bg);
   color-scheme: light;
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {

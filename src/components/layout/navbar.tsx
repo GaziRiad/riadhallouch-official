@@ -60,7 +60,7 @@ export function Navbar() {
             type="button"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
-            className="text-ink flex h-11 w-11 items-center justify-center rounded-full"
+            className="text-ink flex h-11 w-11 items-center justify-center rounded-full transition-transform duration-200 active:scale-90"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

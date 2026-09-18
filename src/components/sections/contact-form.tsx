@@ -15,8 +15,11 @@ const reasons = [
 const inputClass =
   "border-ink-16 text-ink placeholder:text-ink-62/70 focus:border-ink mt-2 w-full rounded-xl border bg-transparent px-4 py-3 text-sm outline-none transition-colors";
 
+const DEFAULT_ERROR = "Something went wrong — email me directly instead.";
+
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState(DEFAULT_ERROR);
   const honeypotRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -41,10 +44,16 @@ export function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, company: honeypotRef.current?.value ?? "" }),
       });
-      if (!res.ok) throw new Error("Request failed");
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        setErrorMessage(body?.error || DEFAULT_ERROR);
+        setStatus("error");
+        return;
+      }
       setStatus("success");
       reset();
     } catch {
+      setErrorMessage(DEFAULT_ERROR);
       setStatus("error");
     }
   });
@@ -142,9 +151,7 @@ export function ContactForm() {
           {isSubmitting ? "Sending…" : "Send message"}
         </Button>
         {status === "error" ? (
-          <span className="text-sm text-red-700">
-            Something went wrong — email me directly instead.
-          </span>
+          <span className="text-sm text-red-700">{errorMessage}</span>
         ) : null}
       </div>
     </form>
