@@ -8,7 +8,7 @@ Personal portfolio built with Next.js (App Router), TypeScript, Tailwind CSS, an
 - **Tailwind CSS v4** — design tokens in `src/app/globals.css` mirror the handoff repo's color/spacing spec 1:1 (`--ink-62`, `--paper-58`, etc.); content is capped at `max-w-[1280px]` and centered per the brief's responsive guidance
 - **GSAP** + `@gsap/react` (`ScrollTrigger`) for motion — no smooth-scroll hijacking (native scroll), `prefers-reduced-motion` disables every tween
 - **Cal.com embed** (`@calcom/embed-react`) for booking — lazy-loaded on first click, never in the initial bundle (`src/lib/cal.ts`)
-- **react-hook-form** + **zod** for the contact form, **Resend** for email delivery, in-memory rate limiting
+- **react-hook-form** + **zod** for the contact form, **Web3Forms** for email delivery, in-memory rate limiting
 - Full file-based SEO: `sitemap.ts`, `robots.ts`, `manifest.ts`, dynamic OG image, JSON-LD (`Person` + `ProfessionalService`/`AggregateRating`)
 
 ## Routes
@@ -55,7 +55,9 @@ The **AggregateRating** in JSON-LD ships with the real, verified figures from th
 
 ## Contact form
 
-`src/app/api/contact/route.ts` validates submissions with zod, rate-limits by IP (`src/lib/rate-limit.ts` — in-memory, fine for a single instance; swap for Upstash/Redis if you scale past one region), and sends email via [Resend](https://resend.com). Set `RESEND_API_KEY` in your environment (see `.env.example`). Without it, the form returns a clear "not configured yet" error instead of failing silently.
+`src/app/api/contact/route.ts` validates submissions with zod, rate-limits by IP (`src/lib/rate-limit.ts` — in-memory, fine for a single instance; swap for Upstash/Redis if you scale past one region), and sends email via [Web3Forms](https://web3forms.com) (server-side, so the access key never ships to the client). Set `WEB3FORMS_ACCESS_KEY` in your environment (see `.env.example`). Without it, the form returns a clear "not configured yet" error instead of failing silently.
+
+This sandbox's network egress is allowlisted and doesn't include `api.web3forms.com`, so the integration is implemented and reaches a real HTTP response from here, but a live send couldn't be confirmed end-to-end from this session — test it on the actual deployment.
 
 ## Booking
 
@@ -66,5 +68,5 @@ The **AggregateRating** in JSON-LD ships with the real, verified figures from th
 Any Next.js host works; this project deploys to Vercel (`vercel.json` pins `"framework": "nextjs"` explicitly — if a deploy ever fails with an output-directory error, check Vercel dashboard → Project Settings → General → Build & Output Settings for a stale manual override). Before going live:
 
 1. Set `url` in `src/data/site.ts` to your real domain, and `calLink` to your real Cal.com event.
-2. Add `RESEND_API_KEY` to your host's environment variables.
+2. Add `WEB3FORMS_ACCESS_KEY` to your host's environment variables.
 3. Replace the placeholder content listed above.

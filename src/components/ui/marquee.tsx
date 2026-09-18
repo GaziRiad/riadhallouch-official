@@ -42,12 +42,16 @@ export function Marquee({
 
       const build = () => {
         tween?.kill();
-        const halfWidth = half.getBoundingClientRect().width;
-        if (!halfWidth) return;
-        gsap.set(track, { xPercent: 0 });
+        // The loop distance is one half's width plus the track's own gap
+        // (the seam between the two halves) — without adding that seam gap
+        // here, the two duplicated sets would touch with no spacing at the
+        // loop point.
+        const loopDistance = half.getBoundingClientRect().width + gap;
+        if (!loopDistance) return;
+        gsap.set(track, { x: 0 });
         tween = gsap.to(track, {
-          xPercent: -50,
-          duration: halfWidth / speed,
+          x: -loopDistance,
+          duration: loopDistance / speed,
           ease: "none",
           repeat: -1,
         });
@@ -89,7 +93,11 @@ export function Marquee({
 
   return (
     <div ref={rootRef} className={cn("overflow-hidden", className)}>
-      <div ref={trackRef} className={cn("flex w-max", trackClassName)}>
+      <div
+        ref={trackRef}
+        className={cn("flex w-max", trackClassName)}
+        style={{ gap: `${gap}px` }}
+      >
         <div ref={halfRef} className="flex shrink-0 items-stretch" style={{ gap: `${gap}px` }}>
           {children}
         </div>

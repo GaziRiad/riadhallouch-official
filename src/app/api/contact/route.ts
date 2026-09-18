@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { contactRequestSchema } from "@/lib/validation";
 import { isRateLimited } from "@/lib/rate-limit";
 import { siteConfig } from "@/data/site";
+
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -22,10 +23,10 @@ export async function POST(request: Request) {
 
   const { name, email, reason, message } = parsed.data;
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
+  const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
+  if (!accessKey) {
     console.error(
-      "Contact form submitted but RESEND_API_KEY is not configured. Set it in your environment to enable email delivery.",
+      "Contact form submitted but WEB3FORMS_ACCESS_KEY is not configured. Set it in your environment to enable email delivery.",
       { name, email, reason }
     );
     return NextResponse.json(
@@ -42,16 +43,26 @@ export async function POST(request: Request) {
         : "General inquiry";
 
   try {
-    const resend = new Resend(apiKey);
-    await resend.emails.send({
-      from: `${siteConfig.name} Portfolio <onboarding@resend.dev>`,
-      to: siteConfig.email,
-      replyTo: email,
-      subject: `${reasonLabel} from ${name}`,
-      text: `From: ${name} <${email}>\nReason: ${reasonLabel}\n\n${message}`,
+    const res = await fetch(WEB3FORMS_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: accessKey,
+        subject: `${reasonLabel} from ${name}`,
+        from_name: `${siteConfig.name} Portfolio`,
+        name,
+        email,
+        reason: reasonLabel,
+        message,
+      }),
     });
+
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data?.success) {
+      throw new Error(data?.message ?? `Web3Forms request failed (${res.status})`);
+    }
   } catch (error) {
-    console.error("Failed to send contact email", error);
+    console.error("Failed to send contact email via Web3Forms", error);
     return NextResponse.json({ error: "Failed to send message." }, { status: 502 });
   }
 

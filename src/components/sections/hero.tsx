@@ -69,7 +69,7 @@ export function Hero() {
             {siteConfig.tagline}
           </p>
           <div className="flex flex-none flex-wrap items-center gap-3">
-            <Button variant="dark" href="#contact">
+            <Button variant="dark" href="/#contact">
               Start a project
               <span aria-hidden="true" className="text-accent">
                 →
