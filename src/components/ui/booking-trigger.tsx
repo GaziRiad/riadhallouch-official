@@ -19,7 +19,7 @@ export function BookingTrigger({
     <button
       type="button"
       onClick={() => openBooking()}
-      className={cn("transition-transform duration-200 active:scale-[0.97]", className)}
+      className={cn("cursor-pointer transition-transform duration-200 active:scale-[0.97]", className)}
     >
       {children}
     </button>

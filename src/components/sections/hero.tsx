@@ -83,7 +83,14 @@ export function Hero() {
 
         <div className="bg-ink-12 grid grid-cols-2 gap-px sm:grid-cols-4">
           {heroStats.map((stat, i) => (
-            <div key={stat.label} className={cn("bg-bg pt-6 pb-[34px]", i > 0 && "sm:pl-6")}>
+            <div
+              key={stat.label}
+              className={cn(
+                "bg-bg pt-6 pb-[34px]",
+                i % 2 === 1 && "pl-6",
+                i > 0 && "sm:pl-6"
+              )}
+            >
               <Counter
                 value={stat.value}
                 suffix={stat.suffix}
