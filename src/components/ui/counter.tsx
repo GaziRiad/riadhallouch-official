@@ -17,13 +17,19 @@ type CounterProps = {
 
 export function Counter({
   value,
-  prefix = "",
-  suffix = "",
-  decimals = 0,
+  prefix: prefixProp,
+  suffix: suffixProp,
+  decimals: decimalsProp,
   duration = 1.4,
   className,
 }: CounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
+  // Default params only cover `undefined` — CMS data can hand us an
+  // explicit `null` for an unset field, which `${null}` would otherwise
+  // stringify to the literal text "null".
+  const prefix = prefixProp ?? "";
+  const suffix = suffixProp ?? "";
+  const decimals = decimalsProp ?? 0;
 
   useGSAP(
     () => {

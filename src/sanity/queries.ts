@@ -3,14 +3,24 @@ import { sanityFetch } from "./client";
 import { fallbackProjects, fallbackSiteSettings, fallbackTestimonials } from "./fallback";
 import type { Project, SiteSettings, Testimonial } from "./types";
 
+// coalesce(...) guards optional scalar fields the same way: GROQ returns
+// null (not the value simply being absent) for a field left blank in an
+// explicit {} projection, and "${null}" stringifies to the literal text
+// "null" wherever it lands in a template literal.
 const SITE_SETTINGS_QUERY = /* groq */ `
   *[_type == "siteSettings"][0]{
     name, role, tagline, description, availabilityBadge, location, email, url,
     keywords, calLink, headshot, links,
     "cvUrl": select(defined(cvFile.asset) => cvFile.asset->url, null),
-    heroStats[]{label, value, prefix, suffix, decimals, accent},
+    heroStats[]{
+      label, value,
+      "prefix": coalesce(prefix, ""),
+      "suffix": coalesce(suffix, ""),
+      "decimals": coalesce(decimals, 0),
+      "accent": coalesce(accent, false)
+    },
     widgetStats, techStack, moneyLine, linkedinPanel,
-    currentlyItems[]{label, accent}
+    currentlyItems[]{label, "accent": coalesce(accent, false)}
   }
 `;
 
