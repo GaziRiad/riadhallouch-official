@@ -61,7 +61,7 @@ export default async function CaseStudyPage({
 
   return (
     <article>
-      <div className="mx-auto max-w-[1280px] px-5 py-14 sm:px-11 sm:py-[72px]">
+      <div className="mx-auto max-w-[1440px] px-5 py-14 sm:px-11 sm:py-[72px]">
         <Link href="/work" className="text-ink-62 hover:text-ink font-mono text-[11.5px]">
           ← All work
         </Link>

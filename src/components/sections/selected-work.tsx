@@ -6,7 +6,7 @@ import { WorkRow } from "@/components/sections/work-row";
 export function SelectedWork() {
   return (
     <section id="work" className="bg-bg scroll-mt-20 py-16 sm:py-[88px]">
-      <div className="mx-auto max-w-[1280px] px-5 sm:px-11">
+      <div className="mx-auto max-w-[1440px] px-5 sm:px-11">
         <Reveal className="mb-11 flex items-baseline justify-between sm:mb-[52px]">
           <h2 className="font-display text-ink text-[34px] leading-[1.05] tracking-[-.02em] sm:text-[46px]">
             Selected work

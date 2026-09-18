@@ -11,7 +11,7 @@ const currentlyItems = [
 export function ClosingCta() {
   return (
     <section id="contact" className="bg-ink">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-5 py-16 sm:px-11 sm:py-24 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-10 px-5 py-16 sm:px-11 sm:py-24 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
         <Reveal>
           <h2 className="font-display text-paper max-w-[22ch] text-[38px] leading-[1.02] tracking-[-.025em] sm:text-[62px]">
             Tell me what you&apos;re building.

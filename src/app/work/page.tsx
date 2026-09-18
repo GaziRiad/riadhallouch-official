@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function WorkIndexPage() {
   return (
-    <section className="bg-bg mx-auto max-w-[1280px] px-5 py-14 sm:px-11 sm:py-[72px]">
+    <section className="bg-bg mx-auto max-w-[1440px] px-5 py-14 sm:px-11 sm:py-[72px]">
       <h1 className="font-display text-ink mb-8 text-[34px] leading-[1.05] tracking-[-.02em] sm:mb-10 sm:text-[46px]">
         Selected work
       </h1>

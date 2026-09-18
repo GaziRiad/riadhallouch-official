@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 export function Testimonials() {
   return (
     <section id="reviews" className="bg-bg-alt overflow-hidden py-14 sm:py-[72px]">
-      <Reveal className="mx-auto mb-9 max-w-[1280px] px-5 sm:mb-[38px] sm:px-11">
+      <Reveal className="mx-auto mb-9 max-w-[1440px] px-5 sm:mb-[38px] sm:px-11">
         <h2 className="font-display text-ink text-[30px] leading-[1.05] tracking-[-.02em] sm:text-[46px]">
           Twenty-four reviews. All five stars.
         </h2>
@@ -35,7 +35,7 @@ export function Testimonials() {
         ))}
       </Marquee>
 
-      <div className="mx-auto mt-6 flex max-w-[1280px] flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-11">
+      <div className="mx-auto mt-6 flex max-w-[1440px] flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-11">
         <span className="text-ink-62 text-sm font-light sm:text-[15px]">{moneyLine}</span>
         <Button
           variant="outline"
@@ -51,7 +51,7 @@ export function Testimonials() {
         </Button>
       </div>
 
-      <div className="mx-auto mt-7 max-w-[1280px] px-5 sm:px-11">
+      <div className="mx-auto mt-7 max-w-[1440px] px-5 sm:px-11">
         <div className="bg-bg border-ink-10 flex flex-col items-start gap-5 rounded-[10px] border p-[26px] sm:flex-row sm:items-center sm:gap-6 sm:p-[26px_28px]">
           <div className="border-ink-10 relative h-16 w-16 flex-none overflow-hidden rounded-full border">
             <Image

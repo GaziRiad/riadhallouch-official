@@ -34,7 +34,7 @@ export function Hero() {
 
   return (
     <section id="top" ref={containerRef} className="bg-bg relative overflow-hidden">
-      <div className="mx-auto max-w-[1280px] px-5 pt-[54px] sm:px-11">
+      <div className="mx-auto max-w-[1440px] px-5 pt-[54px] sm:px-11">
         <div className="flex items-center justify-between">
           <span className="text-ink-62 font-mono text-[11px] tracking-[.08em] uppercase sm:text-[11.5px]">
             Portfolio — 2026

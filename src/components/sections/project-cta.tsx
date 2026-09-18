@@ -11,7 +11,7 @@ import { BookingTrigger } from "@/components/ui/booking-trigger";
 export function ProjectCta() {
   return (
     <section className="bg-ink">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-5 py-16 sm:px-11 sm:py-24 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-10 px-5 py-16 sm:px-11 sm:py-24 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
         <Reveal>
           <h2 className="font-display text-paper max-w-[20ch] text-[34px] leading-[1.05] tracking-[-.02em] sm:text-[52px]">
             Have a project like this in mind?

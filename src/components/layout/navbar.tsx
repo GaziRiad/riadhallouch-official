@@ -11,7 +11,7 @@ export function Navbar() {
 
   return (
     <header className="bg-paper/86 border-ink-07 sticky top-0 z-40 border-b backdrop-blur-[14px]">
-      <div className="mx-auto flex max-w-[1280px] items-center justify-between px-5 py-[18px] sm:px-11">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-[18px] sm:px-11">
         <Link href="#top" className="flex items-center gap-[11px]">
           <span
             aria-hidden="true"

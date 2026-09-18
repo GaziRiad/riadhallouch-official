@@ -12,7 +12,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-ink-09 bg-bg mx-auto flex max-w-[1280px] flex-col items-start gap-3 border-t px-5 py-[26px] sm:flex-row sm:items-center sm:justify-between sm:px-11">
+    <footer className="border-ink-09 bg-bg mx-auto flex max-w-[1440px] flex-col items-start gap-3 border-t px-5 py-[26px] sm:flex-row sm:items-center sm:justify-between sm:px-11">
       <span className="text-ink-62 font-mono text-[11.5px]">
         © {year} {siteConfig.name}
       </span>
