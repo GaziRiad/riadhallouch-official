@@ -22,8 +22,9 @@ export const siteConfig = {
     "MVP Development",
     "Remote Software Engineer",
   ],
-  // TODO: point this at your real Cal.com (or other) booking link.
-  bookingUrl: "https://cal.com/riadhallouch/20min",
+  // TODO: point this at your real Cal.com event — just the "username/event"
+  // part (matches what Cal.com calls a calLink), not the full URL.
+  calLink: "riadhallouch/20min",
   links: {
     github: "https://github.com/riadhallouch",
     linkedin: "https://linkedin.com/in/riadhallouch",

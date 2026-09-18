@@ -1,15 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import dynamic from "next/dynamic";
-
-const BookingModal = dynamic(() =>
-  import("./booking-modal").then((mod) => mod.BookingModal)
-);
+import { openBooking } from "@/lib/cal";
 
 /**
- * Renders its children as the click target and lazy-loads the booking
- * modal (and its iframe) only on first click — never in the initial bundle.
+ * Renders its children as the click target and opens the Cal.com booking
+ * modal. The embed SDK is lazy-loaded on first click (see src/lib/cal.ts) —
+ * never in the initial bundle.
  */
 export function BookingTrigger({
   children,
@@ -18,14 +14,9 @@ export function BookingTrigger({
   children: React.ReactNode;
   className?: string;
 }) {
-  const [open, setOpen] = useState(false);
-
   return (
-    <>
-      <button type="button" onClick={() => setOpen(true)} className={className}>
-        {children}
-      </button>
-      {open ? <BookingModal onClose={() => setOpen(false)} /> : null}
-    </>
+    <button type="button" onClick={() => openBooking()} className={className}>
+      {children}
+    </button>
   );
 }

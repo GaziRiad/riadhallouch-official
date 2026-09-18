@@ -7,70 +7,81 @@ import { prefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
- * Seamless GSAP x-loop: duplicated track, paused on hover/focus-within and
- * while offscreen, with a brief speed-up while the page is being scrolled.
+ * Seamless GSAP x-loop at a constant px/sec speed (not a fixed duration),
+ * so pace feels consistent regardless of content width or viewport.
+ * Paused on hover/focus-within and while offscreen.
  */
 export function Marquee({
   children,
-  duration = 26,
+  speed = 60,
   gap = 40,
   className,
   trackClassName,
 }: {
   children: React.ReactNode;
-  duration?: number;
+  speed?: number;
   gap?: number;
   className?: string;
   trackClassName?: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const halfRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
       registerGsap();
-      if (!trackRef.current || !rootRef.current || prefersReducedMotion()) return;
+      if (!trackRef.current || !rootRef.current || !halfRef.current || prefersReducedMotion()) {
+        return;
+      }
 
       const root = rootRef.current;
-      const tween = gsap.to(trackRef.current, {
-        xPercent: -50,
-        duration,
-        ease: "none",
-        repeat: -1,
-      });
+      const track = trackRef.current;
+      const half = halfRef.current;
+      let tween: gsap.core.Tween | null = null;
+
+      const build = () => {
+        tween?.kill();
+        const halfWidth = half.getBoundingClientRect().width;
+        if (!halfWidth) return;
+        gsap.set(track, { xPercent: 0 });
+        tween = gsap.to(track, {
+          xPercent: -50,
+          duration: halfWidth / speed,
+          ease: "none",
+          repeat: -1,
+        });
+      };
+
+      build();
+
+      const ro = new ResizeObserver(() => build());
+      ro.observe(half);
 
       const io = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) tween.play();
-          else tween.pause();
+          if (entry.isIntersecting) tween?.play();
+          else tween?.pause();
         },
         { threshold: 0 }
       );
       io.observe(root);
 
-      const pause = () => tween.pause();
-      const resume = () => tween.play();
+      const pause = () => tween?.pause();
+      const resume = () => tween?.play();
       root.addEventListener("mouseenter", pause);
       root.addEventListener("mouseleave", resume);
       root.addEventListener("focusin", pause);
       root.addEventListener("focusout", resume);
 
-      let scrollTimeout: ReturnType<typeof setTimeout>;
-      const onScroll = () => {
-        tween.timeScale(2.2);
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => tween.timeScale(1), 300);
-      };
-      window.addEventListener("scroll", onScroll, { passive: true });
-
       return () => {
+        ro.disconnect();
         io.disconnect();
+        tween?.kill();
         root.removeEventListener("mouseenter", pause);
         root.removeEventListener("mouseleave", resume);
         root.removeEventListener("focusin", pause);
         root.removeEventListener("focusout", resume);
-        window.removeEventListener("scroll", onScroll);
-        clearTimeout(scrollTimeout);
       };
     },
     { scope: rootRef }
@@ -79,10 +90,10 @@ export function Marquee({
   return (
     <div ref={rootRef} className={cn("overflow-hidden", className)}>
       <div ref={trackRef} className={cn("flex w-max", trackClassName)}>
-        <div className="flex shrink-0 items-center" style={{ gap: `${gap}px` }}>
+        <div ref={halfRef} className="flex shrink-0 items-stretch" style={{ gap: `${gap}px` }}>
           {children}
         </div>
-        <div className="flex shrink-0 items-center" aria-hidden="true" style={{ gap: `${gap}px` }}>
+        <div className="flex shrink-0 items-stretch" aria-hidden="true" style={{ gap: `${gap}px` }}>
           {children}
         </div>
       </div>

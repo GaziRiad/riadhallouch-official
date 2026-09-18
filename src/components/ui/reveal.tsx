@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 type RevealProps = {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   y?: number;
   delay?: number;
   stagger?: number;
@@ -23,6 +24,7 @@ type RevealProps = {
 export function Reveal({
   children,
   className,
+  style,
   y = 24,
   delay = 0,
   stagger = 0.08,
@@ -57,7 +59,7 @@ export function Reveal({
   );
 
   return (
-    <div ref={ref} className={cn(className)}>
+    <div ref={ref} className={cn(className)} style={style}>
       {children}
     </div>
   );
