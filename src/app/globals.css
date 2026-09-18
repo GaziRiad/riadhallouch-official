@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #faf8f4;
+  --bg-alt: #f1eee7;
+  --ink: #14130f;
+  --ink-70: rgba(20, 19, 15, 0.7);
+  --ink-66: rgba(20, 19, 15, 0.66);
+  --ink-64: rgba(20, 19, 15, 0.64);
+  --ink-62: rgba(20, 19, 15, 0.62);
+  --ink-60: rgba(20, 19, 15, 0.6);
+  --ink-22: rgba(20, 19, 15, 0.22);
+  --ink-16: rgba(20, 19, 15, 0.16);
+  --ink-12: rgba(20, 19, 15, 0.12);
+  --ink-10: rgba(20, 19, 15, 0.1);
+  --ink-09: rgba(20, 19, 15, 0.09);
+  --ink-07: rgba(20, 19, 15, 0.07);
+  --paper: #faf8f4;
+  --paper-80: rgba(250, 248, 244, 0.8);
+  --paper-70: rgba(250, 248, 244, 0.7);
+  --paper-58: rgba(250, 248, 244, 0.58);
+  --paper-35: rgba(250, 248, 244, 0.35);
+  --paper-14: rgba(250, 248, 244, 0.14);
+  --paper-10: rgba(250, 248, 244, 0.1);
+  --paper-05: rgba(250, 248, 244, 0.05);
+  --accent: #00c08b;
+  --accent-ink: #00694f;
+  --accent-ink-hover: #004a37;
+  --accent-tint: #e4f7f0;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-alt: var(--bg-alt);
+  --color-ink: var(--ink);
+  --color-ink-70: var(--ink-70);
+  --color-ink-66: var(--ink-66);
+  --color-ink-64: var(--ink-64);
+  --color-ink-62: var(--ink-62);
+  --color-ink-60: var(--ink-60);
+  --color-ink-22: var(--ink-22);
+  --color-ink-16: var(--ink-16);
+  --color-ink-12: var(--ink-12);
+  --color-ink-10: var(--ink-10);
+  --color-ink-09: var(--ink-09);
+  --color-ink-07: var(--ink-07);
+  --color-paper: var(--paper);
+  --color-paper-80: var(--paper-80);
+  --color-paper-70: var(--paper-70);
+  --color-paper-58: var(--paper-58);
+  --color-paper-35: var(--paper-35);
+  --color-paper-14: var(--paper-14);
+  --color-paper-10: var(--paper-10);
+  --color-paper-05: var(--paper-05);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-tint: var(--accent-tint);
+
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-instrument-serif);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-marquee: marquee 26s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+html {
+  background: var(--bg);
+  color-scheme: light;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 300;
+}
+
+@layer base {
+  a {
+    color: inherit;
+  }
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), Georgia, serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
