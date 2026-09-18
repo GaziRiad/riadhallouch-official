@@ -35,6 +35,8 @@ export function Navbar() {
           ))}
           <a
             href={siteConfig.links.cv}
+            target="_blank"
+            rel="noreferrer"
             className="text-ink-60 hover:text-ink text-[13px] transition-colors"
           >
             CV
@@ -80,6 +82,8 @@ export function Navbar() {
             ))}
             <a
               href={siteConfig.links.cv}
+              target="_blank"
+              rel="noreferrer"
               onClick={() => setOpen(false)}
               className="text-ink-60 hover:bg-bg-alt hover:text-ink flex min-h-11 items-center rounded-xl px-3 text-sm"
             >

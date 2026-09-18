@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactInput } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const reasons = [
   { value: "project", label: "I have a project" },
@@ -12,10 +13,7 @@ const reasons = [
   { value: "other", label: "Something else" },
 ] as const;
 
-const inputClass =
-  "border-ink-16 text-ink placeholder:text-ink-62/70 focus:border-ink mt-2 w-full rounded-xl border bg-transparent px-4 py-3 text-sm outline-none transition-colors";
-
-export function ContactForm() {
+export function ContactForm({ dark = false }: { dark?: boolean }) {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const honeypotRef = useRef<HTMLInputElement>(null);
 
@@ -49,11 +47,29 @@ export function ContactForm() {
     }
   });
 
+  const inputClass = cn(
+    "mt-2 w-full rounded-xl border bg-transparent px-4 py-3 text-sm outline-none transition-colors",
+    dark
+      ? "border-paper-14 text-paper placeholder:text-paper-58 focus:border-paper-35"
+      : "border-ink-16 text-ink placeholder:text-ink-62/70 focus:border-ink"
+  );
+  const labelClass = cn(
+    "font-mono text-[10.5px] tracking-[.06em] uppercase",
+    dark ? "text-paper-58" : "text-ink-62"
+  );
+  const errorClass = dark ? "text-red-400" : "text-red-700";
+  const reasonPillClass = cn(
+    "block rounded-full border px-4 py-2 font-mono text-[12.5px] transition-colors",
+    dark
+      ? "border-paper-14 text-paper-70 peer-checked:bg-paper peer-checked:text-ink peer-checked:border-paper"
+      : "border-ink-16 text-ink-62 peer-checked:bg-ink peer-checked:text-paper peer-checked:border-ink"
+  );
+
   if (status === "success") {
     return (
-      <div className="border-ink-10 rounded-2xl border p-8 text-center sm:p-12">
-        <p className="font-display text-ink text-2xl">Message sent.</p>
-        <p className="text-ink-62 mt-3 text-sm">
+      <div className={cn("rounded-2xl border p-8 text-center sm:p-12", dark ? "border-paper-14" : "border-ink-10")}>
+        <p className={cn("font-display text-2xl", dark ? "text-paper" : "text-ink")}>Message sent.</p>
+        <p className={cn("mt-3 text-sm", dark ? "text-paper-70" : "text-ink-62")}>
           Thanks for reaching out — I reply within a day. In the meantime feel free to email
           directly.
         </p>
@@ -75,16 +91,14 @@ export function ContactForm() {
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="name" className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
+          <label htmlFor="name" className={labelClass}>
             Name
           </label>
           <input id="name" {...register("name")} className={inputClass} placeholder="Jane Doe" />
-          {errors.name ? (
-            <p className="mt-1.5 text-xs text-red-700">{errors.name.message}</p>
-          ) : null}
+          {errors.name ? <p className={cn("mt-1.5 text-xs", errorClass)}>{errors.name.message}</p> : null}
         </div>
         <div>
-          <label htmlFor="email" className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
+          <label htmlFor="email" className={labelClass}>
             Email
           </label>
           <input
@@ -94,16 +108,12 @@ export function ContactForm() {
             className={inputClass}
             placeholder="jane@company.com"
           />
-          {errors.email ? (
-            <p className="mt-1.5 text-xs text-red-700">{errors.email.message}</p>
-          ) : null}
+          {errors.email ? <p className={cn("mt-1.5 text-xs", errorClass)}>{errors.email.message}</p> : null}
         </div>
       </div>
 
       <div>
-        <p className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
-          What&apos;s this about?
-        </p>
+        <p className={labelClass}>What&apos;s this about?</p>
         <div className="mt-2.5 flex flex-wrap gap-2">
           {reasons.map((r) => (
             <label key={r.value} className="cursor-pointer">
@@ -113,16 +123,14 @@ export function ContactForm() {
                 {...register("reason")}
                 className="peer sr-only"
               />
-              <span className="border-ink-16 text-ink-62 peer-checked:bg-ink peer-checked:text-paper peer-checked:border-ink block rounded-full border px-4 py-2 font-mono text-[12.5px] transition-colors">
-                {r.label}
-              </span>
+              <span className={reasonPillClass}>{r.label}</span>
             </label>
           ))}
         </div>
       </div>
 
       <div>
-        <label htmlFor="message" className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
+        <label htmlFor="message" className={labelClass}>
           Message
         </label>
         <textarea
@@ -132,17 +140,15 @@ export function ContactForm() {
           className={inputClass}
           placeholder="Scope, timeline, and anything else useful..."
         />
-        {errors.message ? (
-          <p className="mt-1.5 text-xs text-red-700">{errors.message.message}</p>
-        ) : null}
+        {errors.message ? <p className={cn("mt-1.5 text-xs", errorClass)}>{errors.message.message}</p> : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" disabled={isSubmitting} variant="dark">
+        <Button type="submit" disabled={isSubmitting} variant={dark ? "paper" : "dark"}>
           {isSubmitting ? "Sending…" : "Send message"}
         </Button>
         {status === "error" ? (
-          <span className="text-sm text-red-700">
+          <span className={cn("text-sm", errorClass)}>
             Something went wrong — email me directly instead.
           </span>
         ) : null}
