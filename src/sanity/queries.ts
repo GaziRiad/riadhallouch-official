@@ -14,10 +14,15 @@ const SITE_SETTINGS_QUERY = /* groq */ `
   }
 `;
 
+// coalesce(...) guards against optional array fields left empty in the
+// Studio — Sanity returns null (not []) for an unset array, which would
+// otherwise crash every .map()/.length call downstream.
 const PROJECT_FIELDS = /* groq */ `
   "slug": slug.current, index, title, meta, gridCategory, year, summary, body,
-  coverImage, detailImages, narrativeProblem, narrativeApproach, narrativeResult,
-  stack, metrics, liveUrl, repoUrl, featured, onHomepage
+  coverImage, "detailImages": coalesce(detailImages, []),
+  narrativeProblem, narrativeApproach, narrativeResult,
+  "stack": coalesce(stack, []), "metrics": coalesce(metrics, []),
+  liveUrl, repoUrl, featured, onHomepage
 `;
 
 const ALL_PROJECTS_QUERY = /* groq */ `
