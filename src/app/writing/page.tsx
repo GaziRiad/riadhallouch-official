@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { siteConfig } from "@/data/site";
+import { getSiteSettings } from "@/sanity/queries";
 
-export const metadata: Metadata = {
-  title: "Writing",
-  description: `Notes on shipping software, coming soon from ${siteConfig.name}.`,
-  alternates: { canonical: "/writing" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: "Writing",
+    description: `Notes on shipping software, coming soon from ${settings.name}.`,
+    alternates: { canonical: "/writing" },
+  };
+}
 
 export default function WritingPage() {
   return (

@@ -1,0 +1,160 @@
+import { defineField, defineType } from "sanity";
+
+export const project = defineType({
+  name: "project",
+  title: "Project",
+  type: "document",
+  fields: [
+    defineField({
+      name: "title",
+      title: "Title",
+      type: "string",
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "title", maxLength: 96 },
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "index",
+      title: "Index",
+      type: "string",
+      description: 'Two-digit display index, e.g. "01".',
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "meta",
+      title: "Meta line",
+      type: "string",
+      description: 'e.g. "AI product · 6 weeks" — category and timeline, separated by " · ".',
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "gridCategory",
+      title: "Grid badge",
+      type: "string",
+      description: 'Short badge shown on the /work grid card, e.g. "AI · SaaS".',
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "year",
+      title: "Year",
+      type: "string",
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "summary",
+      title: "Summary",
+      type: "text",
+      rows: 2,
+      description: "One line on what it does and the result — shown on the /work grid card.",
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "body",
+      title: "Overview",
+      type: "text",
+      rows: 4,
+      description: "Shown on the homepage editorial row and the case study's Overview section.",
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "coverImage",
+      title: "Cover image",
+      type: "image",
+      options: { hotspot: true },
+      description: "Used on the homepage row, /work grid card, and the case study hero.",
+    }),
+    defineField({
+      name: "detailImages",
+      title: "Detail images",
+      type: "array",
+      of: [{ type: "image", options: { hotspot: true } }],
+      validation: (r) => r.max(2),
+      description: "Up to two detail shots shown on the case study page.",
+    }),
+    defineField({
+      name: "narrativeProblem",
+      title: "The problem",
+      type: "text",
+      rows: 3,
+    }),
+    defineField({
+      name: "narrativeApproach",
+      title: "The approach",
+      type: "text",
+      rows: 3,
+    }),
+    defineField({
+      name: "narrativeResult",
+      title: "The result",
+      type: "text",
+      rows: 3,
+    }),
+    defineField({
+      name: "stack",
+      title: "Tech stack",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+    }),
+    defineField({
+      name: "metrics",
+      title: "Metrics",
+      type: "array",
+      of: [
+        defineField({
+          name: "metric",
+          type: "object",
+          fields: [
+            defineField({ name: "value", title: "Value", type: "string", validation: (r) => r.required() }),
+            defineField({ name: "label", title: "Label", type: "string", validation: (r) => r.required() }),
+          ],
+          preview: { select: { title: "value", subtitle: "label" } },
+        }),
+      ],
+    }),
+    defineField({
+      name: "liveUrl",
+      title: "Live URL",
+      type: "url",
+    }),
+    defineField({
+      name: "repoUrl",
+      title: "Repository URL",
+      type: "url",
+    }),
+    defineField({
+      name: "featured",
+      title: "Featured (dark card on /work grid)",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
+      name: "onHomepage",
+      title: "Show on homepage",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
+      name: "order",
+      title: "Sort order",
+      type: "number",
+      description: "Lower numbers appear first, on both the homepage and the /work grid.",
+      validation: (r) => r.required(),
+    }),
+  ],
+  orderings: [
+    {
+      title: "Sort order",
+      name: "orderAsc",
+      by: [{ field: "order", direction: "asc" }],
+    },
+  ],
+  preview: {
+    select: { title: "title", subtitle: "meta", media: "coverImage" },
+  },
+});

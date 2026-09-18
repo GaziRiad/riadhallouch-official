@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { contactRequestSchema } from "@/lib/validation";
 import { isRateLimited } from "@/lib/rate-limit";
-import { siteConfig } from "@/data/site";
+import { getSiteSettings } from "@/sanity/queries";
 
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
@@ -43,13 +43,14 @@ export async function POST(request: Request) {
         : "General inquiry";
 
   try {
+    const settings = await getSiteSettings();
     const res = await fetch(WEB3FORMS_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
         access_key: accessKey,
         subject: `${reasonLabel} from ${name}`,
-        from_name: `${siteConfig.name} Portfolio`,
+        from_name: `${settings.name} Portfolio`,
         name,
         email,
         reason: reasonLabel,

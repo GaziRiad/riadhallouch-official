@@ -4,15 +4,16 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/motion";
-import { siteConfig } from "@/data/site";
-import { heroStats } from "@/data/stats";
+import type { SiteSettings } from "@/sanity/types";
 import { Button } from "@/components/ui/button";
 import { Counter } from "@/components/ui/counter";
 import { RatingWidget } from "@/components/sections/rating-widget";
 import { cn } from "@/lib/utils";
 
-export function Hero() {
+export function Hero({ settings }: { settings: SiteSettings }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [firstName, ...rest] = settings.name.split(" ");
+  const lastName = rest.join(" ");
 
   useGSAP(
     () => {
@@ -40,7 +41,7 @@ export function Hero() {
             Portfolio — 2026
           </span>
           <span className="text-accent-ink font-mono text-[11px] tracking-[.08em] uppercase sm:text-[11.5px]">
-            Available for work
+            {settings.availabilityBadge}
           </span>
         </div>
 
@@ -48,17 +49,19 @@ export function Hero() {
           <h1 className="font-display text-ink relative z-[2] mt-[30px] text-[clamp(56px,13vw,168px)] leading-[.86] tracking-[-.04em]">
             <span className="block overflow-hidden pb-[2%]">
               <span data-line className="block">
-                Riad
+                {firstName}
               </span>
             </span>
-            <span className="block overflow-hidden pb-[2%]">
-              <span data-line className="ml-[.06em] block italic">
-                Hallouch
+            {lastName ? (
+              <span className="block overflow-hidden pb-[2%]">
+                <span data-line className="ml-[.06em] block italic">
+                  {lastName}
+                </span>
               </span>
-            </span>
+            ) : null}
           </h1>
 
-          <RatingWidget />
+          <RatingWidget widgetStats={settings.widgetStats} />
         </div>
 
         <div
@@ -66,7 +69,7 @@ export function Hero() {
           className="mt-11 flex scroll-mt-24 flex-col gap-10 border-b border-[rgba(20,19,15,.14)] pb-10 md:flex-row md:items-end md:justify-between"
         >
           <p className="text-ink-66 max-w-[40ch] text-lg leading-[1.6] font-light">
-            {siteConfig.tagline}
+            {settings.tagline}
           </p>
           <div className="flex flex-none flex-wrap items-center gap-3">
             <Button variant="dark" href="/#contact">
@@ -75,14 +78,14 @@ export function Hero() {
                 →
               </span>
             </Button>
-            <Button variant="outline" href={siteConfig.links.cv} target="_blank" rel="noreferrer">
+            <Button variant="outline" href={settings.cvUrl} target="_blank" rel="noreferrer">
               Download CV
             </Button>
           </div>
         </div>
 
         <div className="bg-ink-12 grid grid-cols-2 gap-px sm:grid-cols-4">
-          {heroStats.map((stat, i) => (
+          {settings.heroStats.map((stat, i) => (
             <div
               key={stat.label}
               className={cn(

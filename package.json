@@ -6,16 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:sanity": "tsx scripts/seed-sanity.mts"
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.3",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.9.1",
+    "@sanity/image-url": "^2.1.1",
     "clsx": "^2.1.1",
     "gsap": "^3.15.0",
     "lucide-react": "^1.47.0",
     "next": "16.3.5",
+    "next-sanity": "^13.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.88.0",
@@ -23,6 +26,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@sanity/client": "^8.6.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -30,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+studio/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,6 +17,10 @@
 # next.js
 /.next/
 /out/
+
+# sanity studio
+studio/dist
+studio/.sanity
 
 # production
 /build

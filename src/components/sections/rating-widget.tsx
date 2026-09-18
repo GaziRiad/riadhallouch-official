@@ -4,11 +4,11 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/motion";
-import { widgetStats } from "@/data/stats";
+import type { WidgetStats } from "@/sanity/types";
 import { Stars } from "@/components/ui/stars";
 import { cn } from "@/lib/utils";
 
-function WidgetCard() {
+function WidgetCard({ widgetStats }: { widgetStats: WidgetStats }) {
   return (
     <div className="bg-ink rounded-[14px] p-[22px] shadow-[0_26px_62px_-20px_rgba(20,19,15,.5)]">
       <div className="flex items-center justify-between">
@@ -44,7 +44,7 @@ function WidgetCard() {
   );
 }
 
-function WidgetChip({ className }: { className?: string }) {
+function WidgetChip({ widgetStats, className }: { widgetStats: WidgetStats; className?: string }) {
   return (
     <div
       className={cn(
@@ -62,7 +62,7 @@ function WidgetChip({ className }: { className?: string }) {
   );
 }
 
-export function RatingWidget() {
+export function RatingWidget({ widgetStats }: { widgetStats: WidgetStats }) {
   const parallaxRef = useRef<HTMLDivElement>(null);
   const floatRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
@@ -119,9 +119,9 @@ export function RatingWidget() {
         className="absolute top-[132px] right-11 z-[3] hidden w-[300px] lg:block"
       >
         <div ref={floatRef} className="relative" style={{ transform: "rotate(-2.4deg)" }}>
-          <WidgetCard />
+          <WidgetCard widgetStats={widgetStats} />
           <div ref={chipRef} className="absolute -bottom-6 -left-[34px]" style={{ transform: "rotate(3deg)" }}>
-            <WidgetChip />
+            <WidgetChip widgetStats={widgetStats} />
           </div>
         </div>
       </div>
@@ -129,9 +129,9 @@ export function RatingWidget() {
       {/* Tablet/mobile: de-absoluted, full width up to 360px, chip inline, no rotation */}
       <div className="mt-10 flex flex-wrap items-start gap-4 lg:hidden">
         <div className="w-full max-w-[360px]">
-          <WidgetCard />
+          <WidgetCard widgetStats={widgetStats} />
         </div>
-        <WidgetChip />
+        <WidgetChip widgetStats={widgetStats} />
       </div>
     </>
   );

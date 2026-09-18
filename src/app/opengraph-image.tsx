@@ -1,11 +1,20 @@
 import { ImageResponse } from "next/og";
-import { siteConfig } from "@/data/site";
+import { getSiteSettings } from "@/sanity/queries";
+import { fallbackSiteSettings } from "@/sanity/fallback";
 
-export const alt = `${siteConfig.name} — ${siteConfig.role}`;
+export const alt = `${fallbackSiteSettings.name} — ${fallbackSiteSettings.role}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+function formatStat(stat?: { value: number; prefix?: string; suffix?: string; decimals?: number }) {
+  if (!stat) return "";
+  return `${stat.prefix ?? ""}${stat.value.toFixed(stat.decimals ?? 0)}${stat.suffix ?? ""}`;
+}
+
+export default async function Image() {
+  const settings = await getSiteSettings();
+  const [first, second, , fourth] = settings.heroStats;
+
   return new ImageResponse(
     (
       <div
@@ -31,30 +40,36 @@ export default function Image() {
               textTransform: "uppercase",
             }}
           >
-            Available for work
+            {settings.availabilityBadge}
           </span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 96, fontWeight: 700, lineHeight: 1 }}>{siteConfig.name}</span>
+          <span style={{ fontSize: 96, fontWeight: 700, lineHeight: 1 }}>{settings.name}</span>
           <span style={{ fontSize: 32, color: "rgba(20,19,15,.66)", marginTop: 16, fontWeight: 300 }}>
-            {siteConfig.role}
+            {settings.role}
           </span>
         </div>
 
         <div style={{ display: "flex", gap: 56 }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 40, fontWeight: 700 }}>30+</span>
-            <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>Projects delivered</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 40, fontWeight: 700 }}>5.00</span>
-            <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>Average rating</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 40, fontWeight: 700, color: "#00694f" }}>100%</span>
-            <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>Job success</span>
-          </div>
+          {first ? (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontSize: 40, fontWeight: 700 }}>{formatStat(first)}</span>
+              <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>{first.label}</span>
+            </div>
+          ) : null}
+          {second ? (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontSize: 40, fontWeight: 700 }}>{formatStat(second)}</span>
+              <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>{second.label}</span>
+            </div>
+          ) : null}
+          {fourth ? (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontSize: 40, fontWeight: 700, color: "#00694f" }}>{formatStat(fourth)}</span>
+              <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>{fourth.label}</span>
+            </div>
+          ) : null}
         </div>
       </div>
     ),

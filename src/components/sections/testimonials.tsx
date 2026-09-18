@@ -1,13 +1,15 @@
 import Image from "next/image";
-import { siteConfig } from "@/data/site";
-import { testimonials, moneyLine } from "@/data/testimonials";
-import { linkedinPanel } from "@/data/linkedin";
+import { getSiteSettings, getTestimonials } from "@/sanity/queries";
+import { urlFor } from "@/sanity/image";
 import { Reveal } from "@/components/ui/reveal";
 import { Stars } from "@/components/ui/stars";
 import { Marquee } from "@/components/ui/marquee";
 import { Button } from "@/components/ui/button";
 
-export function Testimonials() {
+export async function Testimonials() {
+  const [settings, testimonials] = await Promise.all([getSiteSettings(), getTestimonials()]);
+  const headshotUrl = urlFor(settings.headshot)?.width(128).height(128).fit("crop").url();
+
   return (
     <section id="reviews" className="bg-bg-alt overflow-hidden py-14 sm:py-[72px]">
       <Reveal className="mx-auto mb-9 max-w-[1440px] px-5 sm:mb-[38px] sm:px-11">
@@ -36,10 +38,10 @@ export function Testimonials() {
       </Marquee>
 
       <div className="mx-auto mt-6 flex max-w-[1440px] flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-11">
-        <span className="text-ink-62 text-sm font-light sm:text-[15px]">{moneyLine}</span>
+        <span className="text-ink-62 text-sm font-light sm:text-[15px]">{settings.moneyLine}</span>
         <Button
           variant="outline"
-          href={siteConfig.links.upwork}
+          href={settings.links.upwork}
           target="_blank"
           rel="noreferrer"
           className="flex-none px-5 py-[11px] text-[12.5px]"
@@ -55,8 +57,8 @@ export function Testimonials() {
         <div className="bg-bg border-ink-10 flex flex-col items-start gap-5 rounded-[10px] border p-[26px] sm:flex-row sm:items-center sm:gap-6 sm:p-[26px_28px]">
           <div className="border-ink-10 relative h-16 w-16 flex-none overflow-hidden rounded-full border">
             <Image
-              src="/images/riad.jpg"
-              alt={siteConfig.name}
+              src={headshotUrl || "/images/riad.jpg"}
+              alt={settings.name}
               fill
               sizes="64px"
               className="object-cover"
@@ -69,16 +71,17 @@ export function Testimonials() {
                 in
               </span>
               <span className="text-ink text-[12.5px] font-medium">
-                {linkedinPanel.recommendations} recommendations · {linkedinPanel.followers} followers
+                {settings.linkedinPanel.recommendations} recommendations · {settings.linkedinPanel.followers}{" "}
+                followers
               </span>
             </div>
             <p className="text-ink-62 mt-2 text-sm leading-[1.55] font-light">
-              {linkedinPanel.blurb}
+              {settings.linkedinPanel.blurb}
             </p>
           </div>
           <Button
             variant="dark"
-            href={linkedinPanel.profileUrl}
+            href={settings.linkedinPanel.profileUrl}
             target="_blank"
             rel="noreferrer"
             className="flex-none px-5 py-3 text-[12.5px]"

@@ -1,9 +1,11 @@
-import { homepageProjects } from "@/data/projects";
+import { getHomepageProjects } from "@/sanity/queries";
 import { Reveal } from "@/components/ui/reveal";
 import { Button } from "@/components/ui/button";
 import { WorkRow } from "@/components/sections/work-row";
 
-export function SelectedWork() {
+export async function SelectedWork() {
+  const homepageProjects = await getHomepageProjects();
+
   return (
     <section id="work" className="bg-bg scroll-mt-20 py-16 sm:py-[88px]">
       <div className="mx-auto max-w-[1440px] px-5 sm:px-11">

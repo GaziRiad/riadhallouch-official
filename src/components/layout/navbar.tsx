@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { siteConfig, navLinks } from "@/data/site";
+import { navLinks } from "@/data/nav";
 import { BookingTrigger } from "@/components/ui/booking-trigger";
+import type { SiteSettings } from "@/sanity/types";
 
-export function Navbar() {
+export function Navbar({ settings }: { settings: SiteSettings }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -19,7 +20,7 @@ export function Navbar() {
             style={{ boxShadow: "0 0 0 4px rgba(0,192,139,.18)" }}
           />
           <span className="text-ink text-sm font-medium tracking-[-0.01em]">
-            {siteConfig.name}
+            {settings.name}
           </span>
         </Link>
 
@@ -34,14 +35,17 @@ export function Navbar() {
             </Link>
           ))}
           <a
-            href={siteConfig.links.cv}
+            href={settings.cvUrl}
             target="_blank"
             rel="noreferrer"
             className="text-ink-60 hover:text-ink text-[13px] transition-colors"
           >
             CV
           </a>
-          <BookingTrigger className="bg-ink flex items-center gap-2 rounded-full px-4 py-[9px] transition-opacity hover:opacity-90">
+          <BookingTrigger
+            calLink={settings.calLink}
+            className="bg-ink flex items-center gap-2 rounded-full px-4 py-[9px] transition-opacity hover:opacity-90"
+          >
             <span className="text-paper text-[12.5px] font-medium">Book a call</span>
             <span aria-hidden="true" className="text-accent text-[12.5px]">
               →
@@ -50,7 +54,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <BookingTrigger className="bg-ink flex h-11 items-center gap-2 rounded-full px-4">
+          <BookingTrigger calLink={settings.calLink} className="bg-ink flex h-11 items-center gap-2 rounded-full px-4">
             <span className="text-paper text-[12.5px] font-medium">Book a call</span>
             <span aria-hidden="true" className="text-accent text-[12.5px]">
               →
@@ -81,7 +85,7 @@ export function Navbar() {
               </Link>
             ))}
             <a
-              href={siteConfig.links.cv}
+              href={settings.cvUrl}
               target="_blank"
               rel="noreferrer"
               onClick={() => setOpen(false)}

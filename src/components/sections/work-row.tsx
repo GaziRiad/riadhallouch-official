@@ -1,15 +1,18 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/motion";
-import type { Project } from "@/data/projects";
+import type { Project } from "@/sanity/types";
+import { urlFor } from "@/sanity/image";
 import { Reveal } from "@/components/ui/reveal";
 import { cn } from "@/lib/utils";
 
 export function WorkRow({ project, reverse }: { project: Project; reverse?: boolean }) {
   const imageRef = useRef<HTMLDivElement>(null);
+  const coverUrl = urlFor(project.coverImage)?.width(1120).height(700).fit("crop").url();
 
   useGSAP(
     () => {
@@ -44,15 +47,22 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
     >
       <div
         ref={imageRef}
-        className="border-ink-09 aspect-[16/10] flex flex-none items-center justify-center overflow-hidden rounded border lg:w-[560px]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(135deg, #e9e5dc 0 7px, #f2efe8 7px 14px)",
-        }}
+        className="border-ink-09 relative aspect-[16/10] flex-none overflow-hidden rounded border lg:w-[560px]"
+        style={
+          coverUrl
+            ? undefined
+            : { backgroundImage: "repeating-linear-gradient(135deg, #e9e5dc 0 7px, #f2efe8 7px 14px)" }
+        }
       >
-        <span className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
-          Project shot — 1600×1000
-        </span>
+        {coverUrl ? (
+          <Image src={coverUrl} alt={project.title} fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
+              Project shot — 1600×1000
+            </span>
+          </div>
+        )}
       </div>
 
       <Reveal className="flex flex-1 flex-col" y={24}>

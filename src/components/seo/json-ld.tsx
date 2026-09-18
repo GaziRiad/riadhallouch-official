@@ -1,16 +1,20 @@
-import { siteConfig } from "@/data/site";
+import { getSiteSettings } from "@/sanity/queries";
 
-export function JsonLd() {
+export async function JsonLd() {
+  const settings = await getSiteSettings();
+  const rating = settings.heroStats.find((s) => s.label === "Average rating");
+  const reviews = settings.heroStats.find((s) => s.label === "Five-star reviews");
+
   const person = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: siteConfig.name,
-    url: siteConfig.url,
-    image: `${siteConfig.url}/apple-icon`,
-    jobTitle: siteConfig.role,
-    description: siteConfig.description,
-    email: `mailto:${siteConfig.email}`,
-    sameAs: [siteConfig.links.linkedin, siteConfig.links.github, siteConfig.links.upwork],
+    name: settings.name,
+    url: settings.url,
+    image: `${settings.url}/apple-icon`,
+    jobTitle: settings.role,
+    description: settings.description,
+    email: `mailto:${settings.email}`,
+    sameAs: [settings.links.linkedin, settings.links.github, settings.links.upwork],
     knowsAbout: [
       "Next.js",
       "React",
@@ -21,26 +25,25 @@ export function JsonLd() {
     ],
   };
 
-  // Real, verified figures per the design brief (30+ projects, 5.00 rating,
-  // 24 five-star reviews). Individual Review entries are deliberately
-  // omitted: the testimonial quotes in src/data/testimonials.ts are
-  // placeholder copy, and shipping fake reviews in structured data is a
-  // real SEO/trust liability — add `review` items only once you have real,
-  // verbatim quotes to publish.
+  // Individual Review entries are deliberately omitted here: shipping fake
+  // or unverified reviews in structured data is a real SEO/trust liability.
+  // Add `review` items once you have real, verbatim quotes to publish.
   const professionalService = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    name: `${siteConfig.name} — Freelance Software Engineering`,
-    url: siteConfig.url,
+    name: `${settings.name} — Freelance Software Engineering`,
+    url: settings.url,
     priceRange: "$$",
     areaServed: "Worldwide",
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "5.00",
-      reviewCount: 24,
-      bestRating: 5,
-      worstRating: 1,
-    },
+    aggregateRating: rating
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: rating.value.toFixed(rating.decimals ?? 0),
+          reviewCount: reviews?.value ?? 0,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined,
   };
 
   return (

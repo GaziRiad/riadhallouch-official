@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
-import { siteConfig } from "@/data/site";
+import { getSiteSettings } from "@/sanity/queries";
 import { ContactForm } from "@/components/sections/contact-form";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: `Start a project or ask about a full-time role. ${siteConfig.name} replies within a day.`,
-  alternates: { canonical: "/contact" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: "Contact",
+    description: `Start a project or ask about a full-time role. ${settings.name} replies within a day.`,
+    alternates: { canonical: "/contact" },
+  };
+}
 
 export default function ContactPage() {
   return (

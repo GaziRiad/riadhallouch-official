@@ -11,14 +11,16 @@ import { cn } from "@/lib/utils";
 export function BookingTrigger({
   children,
   className,
+  calLink,
 }: {
   children: React.ReactNode;
   className?: string;
+  calLink: string;
 }) {
   return (
     <button
       type="button"
-      onClick={() => openBooking()}
+      onClick={() => openBooking(calLink)}
       className={cn("cursor-pointer transition-transform duration-200 active:scale-[0.97]", className)}
     >
       {children}

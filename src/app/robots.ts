@@ -1,12 +1,13 @@
 import type { MetadataRoute } from "next";
-import { siteConfig } from "@/data/site";
+import { getSiteSettings } from "@/sanity/queries";
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const settings = await getSiteSettings();
   return {
     rules: {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: `${siteConfig.url}/sitemap.xml`,
+    sitemap: `${settings.url}/sitemap.xml`,
   };
 }
