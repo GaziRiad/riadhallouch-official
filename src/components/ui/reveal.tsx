@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 type RevealProps = {
@@ -15,14 +16,14 @@ type RevealProps = {
 };
 
 /**
- * Fades/slides direct children into view on scroll. Wrap a group of
- * siblings (e.g. a heading + paragraph, or a card grid) to have them
- * stagger in together.
+ * Reveals direct children on scroll. The hidden state is applied via GSAP
+ * at mount, never as a static className — so if JS never runs, the
+ * server-rendered content stays fully visible and readable.
  */
 export function Reveal({
   children,
   className,
-  y = 28,
+  y = 24,
   delay = 0,
   stagger = 0.08,
   start = "top 85%",
@@ -32,7 +33,7 @@ export function Reveal({
   useGSAP(
     () => {
       registerGsap();
-      if (!ref.current) return;
+      if (!ref.current || prefersReducedMotion()) return;
       const targets = ref.current.children.length
         ? Array.from(ref.current.children)
         : [ref.current];

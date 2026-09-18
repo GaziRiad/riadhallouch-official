@@ -1,10 +1,6 @@
 import { siteConfig } from "@/data/site";
-import { testimonials } from "@/data/testimonials";
 
 export function JsonLd() {
-  const averageRating =
-    testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length;
-
   const person = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -15,11 +11,22 @@ export function JsonLd() {
     description: siteConfig.description,
     email: `mailto:${siteConfig.email}`,
     sameAs: [siteConfig.links.linkedin, siteConfig.links.github, siteConfig.links.upwork],
-    knowsAbout: ["React", "Next.js", "TypeScript", "Node.js", "ERP Automation", "Workflow Automation"],
+    knowsAbout: [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "AI Integration",
+      "Sanity CMS",
+      "MVP Development",
+    ],
   };
 
-  // NOTE: `reviewCount` mirrors the "30+ projects delivered" figure as a
-  // reasonable proxy. Update it if your real Upwork review count differs.
+  // Real, verified figures per the design brief (30+ projects, 5.00 rating,
+  // 24 five-star reviews). Individual Review entries are deliberately
+  // omitted: the testimonial quotes in src/data/testimonials.ts are
+  // placeholder copy, and shipping fake reviews in structured data is a
+  // real SEO/trust liability — add `review` items only once you have real,
+  // verbatim quotes to publish.
   const professionalService = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -29,17 +36,11 @@ export function JsonLd() {
     areaServed: "Worldwide",
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: averageRating.toFixed(1),
-      reviewCount: 30,
+      ratingValue: "5.00",
+      reviewCount: 24,
       bestRating: 5,
       worstRating: 1,
     },
-    review: testimonials.map((t) => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: t.name },
-      reviewRating: { "@type": "Rating", ratingValue: t.rating, bestRating: 5 },
-      reviewBody: t.quote,
-    })),
   };
 
   return (

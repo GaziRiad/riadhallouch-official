@@ -16,37 +16,44 @@ export default function Image() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "80px",
-          background: "#07070b",
-          backgroundImage:
-            "radial-gradient(circle at 15% 20%, rgba(124,111,255,0.35), transparent 45%), radial-gradient(circle at 85% 85%, rgba(253,186,43,0.25), transparent 45%)",
-          color: "#f5f5f7",
+          background: "#faf8f4",
+          color: "#14130f",
           fontFamily: "sans-serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 14, height: 14, borderRadius: 999, background: "#34d399" }} />
-          <span style={{ fontSize: 22, color: "#9a9aa8", letterSpacing: 2 }}>
-            AVAILABLE FOR FREELANCE &amp; FULL-TIME ROLES
+          <div style={{ width: 12, height: 12, borderRadius: 999, background: "#00c08b" }} />
+          <span
+            style={{
+              fontSize: 20,
+              color: "#00694f",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+            }}
+          >
+            Available for work
           </span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 68, fontWeight: 700, lineHeight: 1.1 }}>{siteConfig.name}</span>
-          <span style={{ fontSize: 34, color: "#c9c4ff", marginTop: 12 }}>{siteConfig.role}</span>
+          <span style={{ fontSize: 96, fontWeight: 700, lineHeight: 1 }}>{siteConfig.name}</span>
+          <span style={{ fontSize: 32, color: "rgba(20,19,15,.66)", marginTop: 16, fontWeight: 300 }}>
+            {siteConfig.role}
+          </span>
         </div>
 
         <div style={{ display: "flex", gap: 56 }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 40, fontWeight: 700 }}>$14K+</span>
-            <span style={{ fontSize: 20, color: "#9a9aa8" }}>Earned on Upwork</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 40, fontWeight: 700 }}>30+</span>
-            <span style={{ fontSize: 20, color: "#9a9aa8" }}>Projects delivered</span>
+            <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>Projects delivered</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 40, fontWeight: 700 }}>5.0/5</span>
-            <span style={{ fontSize: 20, color: "#9a9aa8" }}>Average rating</span>
+            <span style={{ fontSize: 40, fontWeight: 700 }}>5.00</span>
+            <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>Average rating</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: 40, fontWeight: 700, color: "#00694f" }}>100%</span>
+            <span style={{ fontSize: 18, color: "rgba(20,19,15,.62)" }}>Job success</span>
           </div>
         </div>
       </div>

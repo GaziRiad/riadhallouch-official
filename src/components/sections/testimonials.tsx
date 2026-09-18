@@ -1,103 +1,87 @@
-"use client";
-
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import { gsap, registerGsap } from "@/lib/gsap";
-import { testimonials, type Testimonial } from "@/data/testimonials";
-import { SectionHeading } from "@/components/ui/section-heading";
-import { StarRating } from "@/components/ui/star-rating";
+import { siteConfig } from "@/data/site";
+import { testimonials, moneyLine } from "@/data/testimonials";
+import { linkedinPanel } from "@/data/linkedin";
 import { Reveal } from "@/components/ui/reveal";
-import { Quote } from "lucide-react";
-
-function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
-  return (
-    <div className="glass flex w-[320px] shrink-0 snap-start flex-col justify-between rounded-3xl p-7 sm:w-[380px]">
-      <div>
-        <Quote className="h-6 w-6 text-accent" />
-        <p className="mt-5 text-[15px] leading-relaxed text-muted">
-          &ldquo;{testimonial.quote}&rdquo;
-        </p>
-      </div>
-      <div className="mt-8 border-t border-border pt-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-foreground">{testimonial.name}</p>
-            <p className="text-xs text-muted-2">{testimonial.role}</p>
-          </div>
-          <span className="eyebrow text-muted-2">{testimonial.source}</span>
-        </div>
-        <StarRating rating={testimonial.rating} className="mt-3" />
-      </div>
-    </div>
-  );
-}
+import { Stars } from "@/components/ui/stars";
+import { Marquee } from "@/components/ui/marquee";
+import { Button } from "@/components/ui/button";
 
 export function Testimonials() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      registerGsap();
-      if (!sectionRef.current || !trackRef.current) return;
-
-      const mm = gsap.matchMedia();
-
-      mm.add("(min-width: 1024px)", () => {
-        if (!trackRef.current || !sectionRef.current) return;
-        const track = trackRef.current;
-
-        const tween = gsap.to(track, {
-          x: () => -(track.scrollWidth - window.innerWidth + 96),
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: () => `+=${track.scrollWidth - window.innerWidth + 96}`,
-            scrub: 1,
-            pin: true,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        return () => {
-          tween.scrollTrigger?.kill();
-          tween.kill();
-        };
-      });
-
-      return () => mm.revert();
-    },
-    { scope: sectionRef }
-  );
-
   return (
-    <section
-      id="reviews"
-      ref={sectionRef}
-      className="relative overflow-hidden py-28 lg:h-screen lg:py-0"
-    >
-      <div className="mx-auto flex h-full max-w-6xl flex-col justify-center px-6">
-        <Reveal>
-          <SectionHeading
-            eyebrow="Client feedback"
-            title={
-              <>
-                5-star reviews,{" "}
-                <span className="text-gradient">every single time.</span>
-              </>
-            }
-          />
-        </Reveal>
+    <section id="reviews" className="bg-bg-alt overflow-hidden py-14 sm:py-[72px]">
+      <Reveal className="mb-9 px-5 sm:mb-[38px] sm:px-11">
+        <h2 className="font-display text-ink text-[30px] leading-[1.05] tracking-[-.02em] sm:text-[46px]">
+          Twenty-four reviews. All five stars.
+        </h2>
+      </Reveal>
 
-        <div
-          ref={trackRef}
-          className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 lg:w-max lg:snap-none lg:overflow-visible lg:pb-0"
+      <Marquee duration={42} gap={20}>
+        {testimonials.map((t, i) => (
+          <div
+            key={i}
+            className="bg-bg border-ink-10 w-[300px] flex-none rounded-[10px] border p-[26px] sm:w-[360px]"
+          >
+            <Stars rating={5} className="text-accent-ink text-[13px] tracking-[.14em]" />
+            <p className="font-display text-ink mt-4 text-lg leading-[1.5]">
+              &ldquo;{t.quote}&rdquo;
+            </p>
+            <div className="text-ink-62 mt-5 font-mono text-[11px]">
+              {t.name} · {t.role}
+            </div>
+          </div>
+        ))}
+      </Marquee>
+
+      <div className="mt-6 flex flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-11">
+        <span className="text-ink-62 text-sm font-light sm:text-[15px]">{moneyLine}</span>
+        <Button
+          variant="outline"
+          href={siteConfig.links.upwork}
+          target="_blank"
+          rel="noreferrer"
+          className="flex-none px-5 py-[11px] text-[12.5px]"
         >
-          {testimonials.map((testimonial) => (
-            <TestimonialCard key={testimonial.name} testimonial={testimonial} />
-          ))}
-          <div className="w-px shrink-0 lg:w-24" aria-hidden />
+          Verify on Upwork
+          <span aria-hidden="true" className="text-accent-ink">
+            ↗
+          </span>
+        </Button>
+      </div>
+
+      <div className="mt-7 px-5 sm:px-11">
+        <div className="bg-bg border-ink-10 flex flex-col items-start gap-5 rounded-[10px] border p-[26px] sm:flex-row sm:items-center sm:gap-6 sm:p-[26px_28px]">
+          <div
+            className="h-16 w-16 flex-none rounded-full"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(135deg, #e4e0d7 0 5px, #eeebe4 5px 10px)",
+            }}
+          >
+            <span className="sr-only">Headshot placeholder</span>
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="bg-ink text-paper flex h-4 w-4 items-center justify-center rounded-[3px] text-[9px] font-semibold">
+                in
+              </span>
+              <span className="text-ink text-[12.5px] font-medium">
+                {linkedinPanel.recommendations} recommendations · {linkedinPanel.followers} followers
+              </span>
+            </div>
+            <p className="text-ink-62 mt-2 text-sm leading-[1.55] font-light">
+              {linkedinPanel.blurb}
+            </p>
+          </div>
+          <Button
+            variant="dark"
+            href={linkedinPanel.profileUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-none px-5 py-3 text-[12.5px]"
+          >
+            Read them
+            <span aria-hidden="true">↗</span>
+          </Button>
         </div>
       </div>
     </section>

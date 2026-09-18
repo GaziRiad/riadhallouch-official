@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 type CounterProps = {
@@ -19,7 +20,7 @@ export function Counter({
   prefix = "",
   suffix = "",
   decimals = 0,
-  duration = 1.8,
+  duration = 1.4,
   className,
 }: CounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -28,8 +29,16 @@ export function Counter({
     () => {
       registerGsap();
       if (!ref.current) return;
-      const counter = { val: 0 };
 
+      if (prefersReducedMotion()) {
+        ref.current.textContent = `${prefix}${value.toLocaleString(undefined, {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        })}${suffix}`;
+        return;
+      }
+
+      const counter = { val: 0 };
       gsap.to(counter, {
         val: value,
         duration,
@@ -41,13 +50,10 @@ export function Counter({
         },
         onUpdate: () => {
           if (!ref.current) return;
-          ref.current.textContent = `${prefix}${counter.val.toLocaleString(
-            undefined,
-            {
-              minimumFractionDigits: decimals,
-              maximumFractionDigits: decimals,
-            }
-          )}${suffix}`;
+          ref.current.textContent = `${prefix}${counter.val.toLocaleString(undefined, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })}${suffix}`;
         },
       });
     },

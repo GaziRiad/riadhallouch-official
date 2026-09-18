@@ -3,26 +3,13 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap } from "@/lib/gsap";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { prefersReducedMotion } from "@/lib/motion";
 import { siteConfig } from "@/data/site";
+import { heroStats } from "@/data/stats";
 import { Button } from "@/components/ui/button";
-import { GradientMesh } from "@/components/ui/gradient-mesh";
-import { Badge } from "@/components/ui/badge";
-import { RotatingText } from "@/components/ui/rotating-text";
+import { Counter } from "@/components/ui/counter";
+import { RatingWidget } from "@/components/sections/rating-widget";
 import { cn } from "@/lib/utils";
-
-const headlineWords: { text: string; accent?: boolean }[] = [
-  { text: "I" },
-  { text: "build" },
-  { text: "web" },
-  { text: "products" },
-  { text: "that" },
-  { text: "ship", accent: true },
-  { text: "—" },
-  { text: "not" },
-  { text: "just" },
-  { text: "prototypes." },
-];
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -30,91 +17,87 @@ export function Hero() {
   useGSAP(
     () => {
       registerGsap();
-      if (!containerRef.current) return;
-      const words = containerRef.current.querySelectorAll<HTMLElement>("[data-word]");
+      if (!containerRef.current || prefersReducedMotion()) return;
+      const lines = containerRef.current.querySelectorAll<HTMLElement>("[data-line]");
 
-      gsap.set(words, { yPercent: 120, opacity: 0 });
-
-      const tl = gsap.timeline({ delay: 0.15 });
-      tl.to(words, {
+      gsap.set(lines, { yPercent: 110 });
+      gsap.to(lines, {
         yPercent: 0,
-        opacity: 1,
-        duration: 1,
-        stagger: 0.045,
-        ease: "power4.out",
-      }).from(
-        "[data-hero-fade]",
-        { opacity: 0, y: 18, duration: 0.7, stagger: 0.12, ease: "power3.out" },
-        "-=0.45"
-      );
+        duration: 0.9,
+        stagger: 0.08,
+        ease: "power3.out",
+        delay: 0.1,
+      });
     },
     { scope: containerRef }
   );
 
   return (
-    <section
-      id="top"
-      ref={containerRef}
-      className="relative flex min-h-screen items-center overflow-hidden pt-32 pb-24"
-    >
-      <GradientMesh />
+    <section id="top" ref={containerRef} className="bg-bg relative overflow-hidden px-5 pt-[54px] sm:px-11">
+      <div className="flex items-center justify-between">
+        <span className="text-ink-62 font-mono text-[11px] tracking-[.08em] uppercase sm:text-[11.5px]">
+          Portfolio — 2026
+        </span>
+        <span className="text-accent-ink font-mono text-[11px] tracking-[.08em] uppercase sm:text-[11.5px]">
+          Available for work
+        </span>
+      </div>
 
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-start px-6">
-        <div data-hero-fade>
-          <Badge>
-            <span className="h-1.5 w-1.5 rounded-full bg-success" />
-            Available for freelance &amp; full-time roles
-          </Badge>
-        </div>
-
-        <h1 className="font-display mt-8 max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl">
-          {headlineWords.map((word, i) => (
-            <span key={i} className="mr-[0.22em] inline-block overflow-hidden pb-2 align-top">
-              <span
-                data-word
-                className={cn("inline-block will-change-transform", word.accent && "text-gradient")}
-              >
-                {word.text}
-              </span>
+      <div className="relative">
+        <h1 className="font-display text-ink relative z-[2] mt-[30px] text-[clamp(56px,13vw,168px)] leading-[.86] tracking-[-.04em]">
+          <span className="block overflow-hidden pb-[2%]">
+            <span data-line className="block">
+              Riad
             </span>
-          ))}
+          </span>
+          <span className="block overflow-hidden pb-[2%]">
+            <span data-line className="ml-[.06em] block italic">
+              Hallouch
+            </span>
+          </span>
         </h1>
 
-        <p data-hero-fade className="mt-6 max-w-xl text-lg text-muted">
+        <RatingWidget />
+      </div>
+
+      <div
+        id="about"
+        className="mt-11 flex scroll-mt-24 flex-col gap-10 border-b border-[rgba(20,19,15,.14)] pb-10 md:flex-row md:items-end md:justify-between"
+      >
+        <p className="text-ink-66 max-w-[40ch] text-lg leading-[1.6] font-light">
           {siteConfig.tagline}
         </p>
-
-        <div data-hero-fade className="mt-5 flex items-center gap-2 text-sm text-muted-2">
-          <span>Currently focused on</span>
-          <RotatingText words={siteConfig.roles} className="font-display font-medium text-foreground" />
-        </div>
-
-        <div data-hero-fade className="mt-10 flex flex-wrap items-center gap-4">
-          <Button href="#work" size="lg">
-            View my work
-            <ArrowUpRight className="h-4 w-4" />
+        <div className="flex flex-none flex-wrap items-center gap-3">
+          <Button variant="dark" href="/contact">
+            Start a project
+            <span aria-hidden="true" className="text-accent">
+              →
+            </span>
           </Button>
-          <Button
-            href={siteConfig.links.upwork}
-            target="_blank"
-            rel="noreferrer"
-            variant="secondary"
-            size="lg"
-          >
-            Upwork profile
+          <Button variant="outline" href={siteConfig.links.cv}>
+            Download CV
           </Button>
         </div>
       </div>
 
-      <a
-        href="#upwork"
-        aria-label="Scroll to next section"
-        data-hero-fade
-        className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted-2 transition-colors hover:text-foreground sm:flex"
-      >
-        <span className="eyebrow">Scroll</span>
-        <ArrowDown className="h-4 w-4 animate-bounce" />
-      </a>
+      <div className="bg-ink-12 grid grid-cols-2 gap-px sm:grid-cols-4">
+        {heroStats.map((stat, i) => (
+          <div key={stat.label} className={cn("bg-bg pt-6 pb-[34px]", i > 0 && "sm:pl-6")}>
+            <Counter
+              value={stat.value}
+              suffix={stat.suffix}
+              decimals={stat.decimals}
+              className={cn(
+                "font-display block text-[36px] leading-none sm:text-[44px]",
+                stat.accent ? "text-accent-ink" : "text-ink"
+              )}
+            />
+            <div className="text-ink-62 mt-2 font-mono text-[10.5px] tracking-[.06em] uppercase">
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { contactRequestSchema } from "@/lib/validation";
+import { isRateLimited } from "@/lib/rate-limit";
 import { siteConfig } from "@/data/site";
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again in a few minutes." },
+      { status: 429 }
+    );
+  }
+
   const json = await request.json().catch(() => null);
   const parsed = contactRequestSchema.safeParse(json);
 

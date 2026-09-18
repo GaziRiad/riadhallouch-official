@@ -4,32 +4,34 @@ export type Stat = {
   prefix?: string;
   suffix?: string;
   decimals?: number;
+  accent?: boolean;
 };
 
-// NOTE: Verified figures from the brief. Update `value` if these change.
-export const upworkStats: Stat[] = [
-  {
-    label: "Earned on Upwork",
-    value: 14000,
-    prefix: "$",
-    suffix: "+",
-  },
-  {
-    label: "Projects delivered",
-    value: 30,
-    suffix: "+",
-  },
-  {
-    label: "Average client rating",
-    value: 5.0,
-    suffix: "/5",
-    decimals: 1,
-  },
+// Verified figures per the design brief — do not round these differently
+// across the site (hero strip, widget, and JSON-LD must all agree).
+export const heroStats: Stat[] = [
+  { label: "Projects delivered", value: 30, suffix: "+" },
+  { label: "Average rating", value: 5, decimals: 2 },
+  { label: "Five-star reviews", value: 24 },
+  { label: "Job success", value: 100, suffix: "%", accent: true },
 ];
 
-// TODO: confirm current Upwork badge (Top Rated / Top Rated Plus / Rising Talent)
-// on your live profile and adjust the copy in `upwork-badge.ts` if needed.
-export const upworkBadge = {
-  label: "Top Rated",
-  sublabel: "Upwork",
+export const widgetStats = {
+  rating: "5.00",
+  reviews: "24 · all 5★",
+  jobSuccess: "100%",
+  onTimeDelivery: "100%",
+  shippedCaption: "Shipped",
+  shippedValue: "30+ projects",
 };
+
+export const techStack = [
+  "Next.js 15",
+  "App Router",
+  "TypeScript",
+  "Sanity CMS",
+  "OpenAI / Anthropic SDK",
+  "Postgres",
+  "GSAP",
+  "Vercel",
+];

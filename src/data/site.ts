@@ -1,39 +1,34 @@
 export const siteConfig = {
   name: "Riad Hallouch",
-  role: "Full-Stack Software Engineer",
-  roles: [
-    "Full-Stack Software Engineer",
-    "Freelance Web Developer",
-    "ERP & Automation Specialist",
-    "React / Next.js Engineer",
-  ],
+  role: "Senior Next.js Developer",
   tagline:
-    "I build fast, reliable web products for startups, agencies, and clients who need software that actually ships.",
+    "Senior Next.js developer. AI integration, Sanity, MVP specialist. I take products from blank repo to ranked and profitable.",
   description:
-    "Portfolio of Riad Hallouch, a full-stack software engineer specializing in React, Next.js, and business-workflow automation. Top Rated on Upwork with $14K+ earned across 30+ delivered projects and a 5.0 rating.",
-  location: "Algeria (Remote, UTC+1)",
-  email: "riadhallouch447@gmail.com",
+    "Portfolio of Riad Hallouch, a senior Next.js developer specializing in AI integration, Sanity, and MVP builds. 30+ projects delivered, 5.00 average rating, 24 five-star reviews, 100% job success on Upwork.",
+  location: "Remote — GMT+1",
+  email: "hello@riadhallouch.com",
   // TODO: replace with your production domain before deploying.
   url: "https://riadhallouch.com",
   ogImage: "/opengraph-image",
   keywords: [
     "Riad Hallouch",
-    "Full-Stack Software Engineer",
+    "Senior Next.js Developer",
     "Next.js Developer",
     "React Developer",
+    "AI Integration Engineer",
+    "Sanity CMS Developer",
     "Freelance Web Developer",
     "Upwork Top Rated Developer",
-    "ERP Automation Engineer",
-    "JavaScript Engineer",
-    "Web Application Developer",
+    "MVP Development",
     "Remote Software Engineer",
   ],
+  // TODO: point this at your real Cal.com (or other) booking link.
+  bookingUrl: "https://cal.com/riadhallouch/20min",
   links: {
     github: "https://github.com/riadhallouch",
     linkedin: "https://linkedin.com/in/riadhallouch",
     upwork: "https://www.upwork.com/freelancers/riadhallouch",
-    twitter: "https://x.com/riadhallouch",
-    resume: "/resume.pdf",
+    cv: "/cv-riad-hallouch.pdf",
   },
 } as const;
 
@@ -41,9 +36,6 @@ export type NavLink = { label: string; href: string };
 
 export const navLinks: NavLink[] = [
   { label: "Work", href: "#work" },
-  { label: "Upwork", href: "#upwork" },
-  { label: "Skills", href: "#skills" },
-  { label: "Reviews", href: "#reviews" },
   { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Writing", href: "/writing" },
 ];
