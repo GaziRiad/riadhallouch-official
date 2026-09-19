@@ -177,6 +177,8 @@ async function resolveScreenshots(spec: ScreenshotSpec) {
   return { coverImage, detailImages };
 }
 
+const baseId = (id: string) => (id.startsWith("drafts.") ? id.slice("drafts.".length) : id);
+
 async function main() {
   const slugs = Object.keys(CASE_STUDIES);
   if (!slugs.length) {
@@ -185,16 +187,28 @@ async function main() {
   }
 
   for (const slug of slugs) {
-    const id = await client.fetch<string | null>(
-      `*[_type == "project" && slug.current == $slug][0]._id`,
-      { slug }
-    );
+    // Fetch every matching _id, not just the first: a document can exist
+    // as a published copy, a draft copy, or both — and Sanity's editor
+    // always shows the draft over the published version when a draft
+    // exists. Patching only the published id (as this used to do) left
+    // Studio showing a stale draft with the old content, even though the
+    // write itself "succeeded".
+    const ids = await client.fetch<string[]>(`*[_type == "project" && slug.current == $slug]._id`, {
+      slug,
+    });
 
-    if (!id) {
+    if (!ids.length) {
       console.error(
         `✗ No project with slug "${slug}" found — create it in the Studio first (Projects → Create → set the slug), then re-run.`
       );
       continue;
+    }
+
+    const baseIds = [...new Set(ids.map(baseId))];
+    if (baseIds.length > 1) {
+      console.warn(
+        `  ! Found ${baseIds.length} different documents with slug "${slug}" (not just a draft/published pair of the same one) — updating all of them. You likely have a duplicate to delete in the Studio.`
+      );
     }
 
     const { screenshots, ...textFields } = CASE_STUDIES[slug];
@@ -207,8 +221,14 @@ async function main() {
       if (detailImages.length) patch.detailImages = detailImages;
     }
 
-    await client.patch(id).set(patch).commit();
-    console.log(`✓ Updated "${slug}" (${id})`);
+    for (const bid of baseIds) {
+      // Patch whichever of the draft/published pair actually exist.
+      for (const candidateId of [bid, `drafts.${bid}`]) {
+        if (!ids.includes(candidateId)) continue;
+        await client.patch(candidateId).set(patch).commit();
+      }
+      console.log(`✓ Updated "${slug}" (${bid})`);
+    }
   }
 }
 
