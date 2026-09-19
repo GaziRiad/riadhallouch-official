@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:sanity": "tsx scripts/seed-sanity.mts"
+    "seed:sanity": "tsx scripts/seed-sanity.mts",
+    "update:projects": "tsx scripts/update-projects.mts"
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.3",
