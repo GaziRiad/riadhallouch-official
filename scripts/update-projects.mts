@@ -223,11 +223,13 @@ async function main() {
 
     for (const bid of baseIds) {
       // Patch whichever of the draft/published pair actually exist.
+      const patched: string[] = [];
       for (const candidateId of [bid, `drafts.${bid}`]) {
         if (!ids.includes(candidateId)) continue;
         await client.patch(candidateId).set(patch).commit();
+        patched.push(candidateId.startsWith("drafts.") ? "draft" : "published");
       }
-      console.log(`✓ Updated "${slug}" (${bid})`);
+      console.log(`✓ Updated "${slug}" (${bid}) — wrote: ${patched.join(" + ")}`);
     }
   }
 }
