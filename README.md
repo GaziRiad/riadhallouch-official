@@ -94,6 +94,22 @@ npm run deploy
 
 This publishes it for free to `https://<your-project-name>.sanity.studio` via Sanity's own hosting — no extra Vercel project needed. Add that URL to CORS origins too if you also want to edit from there in the browser (it works by default since it's a Sanity-hosted origin).
 
+### Adding case studies (automated)
+
+`scripts/update-projects.mts` holds a `CASE_STUDIES` map — text fields plus optional screenshot URLs, keyed by the project's slug. It patches an existing project document (create the document with its slug in the Studio first) and, if a `screenshots` entry is given, captures real screenshots of the live site with Playwright and uploads them as the cover/detail images.
+
+**Fully automated, once set up:** a GitHub Actions workflow (`.github/workflows/update-sanity-content.yml`) runs this script automatically on every push to `main` that touches `scripts/update-projects.mts` — no local run required. One-time setup, in this repo's GitHub Settings → Secrets and variables → Actions:
+
+| Name | Value | Type |
+|---|---|---|
+| `SANITY_PROJECT_ID` | your project ID (e.g. `fu3gbare`) | Secret |
+| `SANITY_API_WRITE_TOKEN` | an **Editor**-permission token from [sanity.io/manage](https://www.sanity.io/manage) → your project → API → Tokens | Secret |
+| `SANITY_DATASET` | `production` (optional — defaults to `production` if not set) | Variable |
+
+After that, adding a case study is just editing `CASE_STUDIES` and pushing — the workflow handles the rest, screenshots included.
+
+**Running it locally instead** works the same way (`npm run update:projects`), but needs `SANITY_API_WRITE_TOKEN` in `.env.local` and Playwright's browser installed once (`npx playwright install chromium`) for the screenshot step; without that install, the script still applies the text fields and just skips screenshots with a warning.
+
 ### If you'd rather not use Sanity
 
 Leave `NEXT_PUBLIC_SANITY_PROJECT_ID` unset — the site falls back to the bundled placeholder content in `src/sanity/fallback.ts` and never crashes. You can hand-edit that file directly instead of connecting a CMS, though you'll lose the "edit without a deploy" benefit.

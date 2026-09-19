@@ -1,0 +1,37 @@
+name: Update Sanity content
+
+# Runs scripts/update-projects.mts automatically whenever it changes on
+# main — patches project text fields and (re)captures + uploads live-site
+# screenshots via Playwright. GitHub's runners have normal internet
+# access, unlike the sandbox this repo is often edited from, so this is
+# where the screenshot/upload step actually executes.
+#
+# One-time setup required in this repo's Settings → Secrets and
+# variables → Actions:
+#   SANITY_API_WRITE_TOKEN — an Editor-permission token from
+#     https://www.sanity.io/manage → your project → API → Tokens
+#   SANITY_PROJECT_ID      — e.g. fu3gbare
+# (SANITY_DATASET defaults to "production" if not set as a repo variable.)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/update-projects.mts"
+  workflow_dispatch: {}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: npm ci
+
+      - run: npm run update:projects
+        env:
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ vars.SANITY_DATASET || 'production' }}
+          SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}

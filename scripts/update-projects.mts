@@ -1,18 +1,26 @@
 /**
- * Applies drafted case-study copy to existing project documents by slug.
- * Claude fills in CASE_STUDIES below (one entry per project, keyed by the
- * slug you already created in the Studio) and you just run this — no
- * copy-pasting into 15 fields by hand.
+ * Applies drafted case-study copy — and screenshots of the live site — to
+ * existing project documents by slug. Claude fills in CASE_STUDIES below
+ * (one entry per project, keyed by the slug already created in the
+ * Studio); running this applies it, no manual Studio editing needed.
  *
  * Usage: npm run update:projects
  * Requires SANITY_PROJECT_ID, SANITY_DATASET, SANITY_API_WRITE_TOKEN in
  * env (.env.local is loaded automatically) — the same ones seed-sanity.mts
- * uses.
+ * uses. Screenshot capture needs Playwright's Chromium installed locally
+ * (`npx playwright install chromium`) — if it isn't, text fields still
+ * get applied and only the screenshot step is skipped, with a warning.
+ *
+ * This also runs in CI (see .github/workflows/update-sanity-content.yml)
+ * on every push that touches this file, using a Playwright container
+ * that already has the browser installed — so once the
+ * SANITY_API_WRITE_TOKEN secret is set on the repo, this never needs to
+ * be run by hand again.
  *
  * Only patches the fields listed per project; everything else on the
- * document (images, year, order, etc. if not listed) is left untouched.
- * Refuses to run for a slug that doesn't already exist as a project —
- * create the document in the Studio first, then run this to fill it in.
+ * document (year, order, etc. if not listed) is left untouched. Refuses
+ * to run for a slug that doesn't already exist as a project — create the
+ * document in the Studio first, then run this to fill it in.
  */
 import { createClient } from "@sanity/client";
 import path from "node:path";
@@ -24,7 +32,8 @@ const root = path.resolve(__dirname, "..");
 try {
   process.loadEnvFile(path.join(root, ".env.local"));
 } catch {
-  // .env.local is optional — env vars may already be set in the shell.
+  // .env.local is optional — env vars may already be set in the shell
+  // (e.g. GitHub Actions secrets).
 }
 
 const projectId = process.env.SANITY_PROJECT_ID || process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
@@ -47,6 +56,18 @@ const client = createClient({
   useCdn: false,
 });
 
+type ScreenshotSpec = {
+  /** URL for the case study's cover image (hero shot). */
+  cover: string;
+  /** Up to 2 URLs for the case study's detail gallery. */
+  details?: string[];
+};
+
+type SanityImageRef = {
+  _type: "image";
+  asset: { _type: "reference"; _ref: string };
+};
+
 type ProjectPatch = {
   title?: string;
   meta?: string;
@@ -60,6 +81,7 @@ type ProjectPatch = {
   liveUrl?: string;
   onHomepage?: boolean;
   featured?: boolean;
+  screenshots?: ScreenshotSpec;
 };
 
 // Add one entry per project as Claude drafts the copy — key is the slug
@@ -82,8 +104,66 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
     liveUrl: "https://www.wimbeetech.com/",
     onHomepage: true,
     featured: false,
+    screenshots: {
+      cover: "https://www.wimbeetech.com/",
+      details: ["https://www.wimbeetech.com/boosters/profilink-en", "https://www.wimbeetech.com/contactUs"],
+    },
   },
 };
+
+async function captureScreenshot(url: string): Promise<Buffer | null> {
+  const { chromium } = await import("playwright");
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+    await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
+    return await page.screenshot({ type: "png" });
+  } finally {
+    await browser.close();
+  }
+}
+
+async function resolveScreenshots(spec: ScreenshotSpec) {
+  let browserAvailable = true;
+  const tryCapture = async (url: string) => {
+    if (!browserAvailable) return null;
+    try {
+      return await captureScreenshot(url);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/executable doesn't exist|browserType\.launch/i.test(message)) {
+        browserAvailable = false;
+        console.warn(
+          "  ! Playwright's Chromium isn't installed locally (run `npx playwright install chromium`) — skipping screenshots."
+        );
+      } else {
+        console.warn(`  ! Failed to screenshot ${url}: ${message}`);
+      }
+      return null;
+    }
+  };
+
+  const uploadIfCaptured = async (url: string): Promise<SanityImageRef | null> => {
+    const buffer = await tryCapture(url);
+    if (!buffer) return null;
+    const asset = await client.assets.upload("image", buffer, {
+      filename: `${new URL(url).hostname}-${Date.now()}.png`,
+    });
+    return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
+  };
+
+  console.log(`  Capturing cover screenshot (${spec.cover})...`);
+  const coverImage = await uploadIfCaptured(spec.cover);
+
+  const detailImages: SanityImageRef[] = [];
+  for (const url of spec.details?.slice(0, 2) ?? []) {
+    console.log(`  Capturing detail screenshot (${url})...`);
+    const image = await uploadIfCaptured(url);
+    if (image) detailImages.push(image);
+  }
+
+  return { coverImage, detailImages };
+}
 
 async function main() {
   const slugs = Object.keys(CASE_STUDIES);
@@ -105,7 +185,17 @@ async function main() {
       continue;
     }
 
-    await client.patch(id).set(CASE_STUDIES[slug]).commit();
+    const { screenshots, ...textFields } = CASE_STUDIES[slug];
+    const patch: Record<string, unknown> = { ...textFields };
+
+    if (screenshots) {
+      console.log(`Capturing screenshots for "${slug}"...`);
+      const { coverImage, detailImages } = await resolveScreenshots(screenshots);
+      if (coverImage) patch.coverImage = coverImage;
+      if (detailImages.length) patch.detailImages = detailImages;
+    }
+
+    await client.patch(id).set(patch).commit();
     console.log(`✓ Updated "${slug}" (${id})`);
   }
 }
