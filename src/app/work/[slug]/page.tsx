@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getProjectBySlug, getProjectSlugs } from "@/sanity/queries";
 import { urlFor } from "@/sanity/image";
 import { Reveal } from "@/components/ui/reveal";
+import { Button } from "@/components/ui/button";
 import { ProjectCta } from "@/components/sections/project-cta";
 
 const placeholderPattern = (dark = false) =>
@@ -78,6 +79,21 @@ export default async function CaseStudyPage({
           <p className="text-ink-66 mt-5 max-w-[52ch] text-lg leading-[1.6] font-light">
             {project.summary}
           </p>
+
+          {project.liveUrl ? (
+            <Button
+              variant="outline"
+              href={project.liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-7 px-5 py-3 text-[13px]"
+            >
+              Visit live site
+              <span aria-hidden="true" className="text-accent-ink">
+                ↗
+              </span>
+            </Button>
+          ) : null}
         </Reveal>
 
         <Reveal

@@ -78,6 +78,8 @@ type ProjectPatch = {
   narrativeApproach?: string;
   narrativeResult?: string;
   stack?: string[];
+  /** Explicit [] clears stale placeholder metrics rather than leaving them untouched. */
+  metrics?: { value: string; label: string }[];
   liveUrl?: string;
   onHomepage?: boolean;
   featured?: boolean;
@@ -101,6 +103,11 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
     narrativeResult:
       "Wimbee launched with a site that reflects the technical credibility of their consulting work: statically generated pages for fast loads, a CMS their team actually uses to keep content current, and a component system built to extend as they add new products and case studies.",
     stack: ["Next.js", "Tailwind CSS", "Sanity"],
+    // No verified performance/result numbers for this one yet — clearing
+    // it explicitly rather than leaving it untouched, since the document
+    // was duplicated from a seeded placeholder that had "28 days" / "$0"
+    // sitting in this field.
+    metrics: [],
     liveUrl: "https://www.wimbeetech.com/",
     onHomepage: true,
     featured: false,
@@ -117,6 +124,11 @@ async function captureScreenshot(url: string): Promise<Buffer | null> {
   try {
     const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
     await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
+    // networkidle only means requests have settled — it says nothing about
+    // CSS/JS entrance animations (fade-ins, hero reveals) still running,
+    // which is why an earlier capture came back with a blank hero. Give
+    // those a moment to finish before taking the shot.
+    await page.waitForTimeout(2500);
     return await page.screenshot({ type: "png" });
   } finally {
     await browser.close();
