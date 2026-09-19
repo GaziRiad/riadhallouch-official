@@ -118,17 +118,55 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
   },
 };
 
+// Common cookie-consent button labels. Some sites gate hero content
+// (analytics-dependent widgets, embedded video, occasionally the whole
+// layout) behind consent, or the banner's own overlay blocks the shot —
+// dismissing it before capturing avoids both.
+const CONSENT_BUTTON_SELECTORS = [
+  'button:has-text("Accept all")',
+  'button:has-text("Accept All")',
+  'button:has-text("Accept")',
+  'button:has-text("I agree")',
+  'button:has-text("Tout accepter")',
+  'button:has-text("J\'accepte")',
+  "#onetrust-accept-btn-handler",
+];
+
+async function dismissCookieConsent(page: import("playwright").Page) {
+  for (const selector of CONSENT_BUTTON_SELECTORS) {
+    try {
+      const button = page.locator(selector).first();
+      if (await button.isVisible({ timeout: 1000 })) {
+        await button.click({ timeout: 1000 });
+        return;
+      }
+    } catch {
+      // Selector not present/visible — try the next one.
+    }
+  }
+}
+
 async function captureScreenshot(url: string): Promise<Buffer | null> {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
     await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
+
+    await dismissCookieConsent(page);
+
+    // Nudge-scroll to trigger any entrance animation gated on a scroll
+    // event rather than initial-viewport visibility, then settle back at
+    // the top before the shot.
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(400);
+    await page.mouse.wheel(0, -300);
+
     // networkidle only means requests have settled — it says nothing about
     // CSS/JS entrance animations (fade-ins, hero reveals) still running,
     // which is why an earlier capture came back with a blank hero. Give
     // those a moment to finish before taking the shot.
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(4000);
     return await page.screenshot({ type: "png" });
   } finally {
     await browser.close();
