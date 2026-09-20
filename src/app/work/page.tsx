@@ -22,7 +22,7 @@ export default async function WorkIndexPage() {
 
       <div className="grid gap-[22px] sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => {
-          const coverUrl = urlFor(project.coverImage)?.width(600).height(450).fit("crop").url();
+          const coverUrl = urlFor(project.coverImage)?.width(960).height(540).fit("crop").url();
 
           return (
             <Link
@@ -34,7 +34,7 @@ export default async function WorkIndexPage() {
               )}
             >
               <div
-                className="relative flex aspect-[4/3] items-center justify-center"
+                className="relative flex aspect-[16/9] items-center justify-center"
                 style={
                   coverUrl
                     ? undefined

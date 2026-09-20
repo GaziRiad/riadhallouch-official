@@ -66,7 +66,8 @@ export const project = defineType({
       title: "Cover image",
       type: "image",
       options: { hotspot: true },
-      description: "Used on the homepage row, /work grid card, and the case study hero.",
+      description:
+        "Upload 16:9 — 1920×1080 is ideal. Used on the homepage row, /work grid card, and the case study hero, all of which are 16:9, so a 16:9 image is never cropped.",
     }),
     defineField({
       name: "detailImages",
@@ -74,7 +75,8 @@ export const project = defineType({
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
       validation: (r) => r.max(2),
-      description: "Up to two detail shots shown on the case study page.",
+      description:
+        "Up to two detail shots shown on the case study page, in 16:9 frames — 1920×1080 fills one exactly. A taller or square image is shown whole rather than cropped, so it sits inside the frame with space either side.",
     }),
     defineField({
       name: "video",

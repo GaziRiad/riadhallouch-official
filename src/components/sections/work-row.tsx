@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export function WorkRow({ project, reverse }: { project: Project; reverse?: boolean }) {
   const imageRef = useRef<HTMLDivElement>(null);
-  const coverUrl = urlFor(project.coverImage)?.width(1120).height(700).fit("crop").url();
+  const coverUrl = urlFor(project.coverImage)?.width(1120).height(630).fit("crop").url();
 
   useGSAP(
     () => {
@@ -48,7 +48,7 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
     >
       <div
         ref={imageRef}
-        className="border-ink-09 relative aspect-[16/10] flex-none overflow-hidden rounded border lg:w-[560px]"
+        className="border-ink-09 relative aspect-[16/9] flex-none overflow-hidden rounded border lg:w-[560px]"
         style={
           coverUrl
             ? undefined

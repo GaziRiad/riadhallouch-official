@@ -44,8 +44,11 @@ export default async function CaseStudyPage({
   if (!project) notFound();
 
   const coverUrl = urlFor(project.coverImage)?.width(1920).height(1080).fit("crop").url();
+  // fit("max") scales to fit inside the frame instead of filling it, so a
+  // tall or square screenshot keeps all of itself rather than losing its
+  // edges. A 16:9 source matches the tile exactly and shows no bars.
   const detailUrls = project.detailImages
-    .map((img) => urlFor(img)?.width(1200).height(900).fit("crop").url())
+    .map((img) => urlFor(img)?.width(1200).height(675).fit("max").url())
     .filter((url): url is string => Boolean(url));
 
   // A video fills the gallery slot on its own, so skip the "awaiting a
@@ -187,7 +190,7 @@ export default async function CaseStudyPage({
               return (
                 <div
                   key={i}
-                  className="border-ink-09 relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded border"
+                  className={`border-ink-09 relative flex aspect-video items-center justify-center overflow-hidden rounded border ${detailUrl ? "bg-ink-07" : ""}`}
                   style={detailUrl ? undefined : { backgroundImage: placeholderPattern() }}
                 >
                   {detailUrl ? (
@@ -196,11 +199,11 @@ export default async function CaseStudyPage({
                       alt={`${project.title} detail ${i + 1}`}
                       fill
                       sizes="(min-width: 640px) 50vw, 100vw"
-                      className="object-cover"
+                      className="object-contain"
                     />
                   ) : (
                     <span className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
-                      Detail shot — 1200×900
+                      Detail shot — 1920×1080
                     </span>
                   )}
                 </div>
