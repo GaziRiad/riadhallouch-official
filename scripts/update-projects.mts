@@ -229,7 +229,14 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
     featured: false,
     screenshots: {
       cover: "https://primepcdz.com/",
-      details: [{ file: "scripts/assets/primepc/admin-control-center.webp" }, { file: "scripts/assets/primepc/account-details.png" }],
+      // The -16x9 files are top-anchored crops of the full-page originals
+      // kept beside them: a whole-page capture is far taller than the 16:9
+      // frames these land in, so cropping to a viewport-shaped slice keeps
+      // every tile the same size without shrinking one to fit.
+      details: [
+        { file: "scripts/assets/primepc/admin-control-center-16x9.webp" },
+        { file: "scripts/assets/primepc/account-details-16x9.png" },
+      ],
     },
   },
   // Researched via scripts/detect-stack.mts — Next.js confirmed (framework

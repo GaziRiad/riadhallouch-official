@@ -18,6 +18,7 @@ on:
     branches: [main]
     paths:
       - "scripts/update-projects.mts"
+      - "scripts/assets/**"
   workflow_dispatch: {}
 
 jobs:
