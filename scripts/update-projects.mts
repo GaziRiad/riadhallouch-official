@@ -404,12 +404,7 @@ async function captureScreenshot(url: string): Promise<Buffer | null> {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   try {
-    // 2560×1440 rather than 1920×1080: still the 16:9 every frame on the
-    // site expects, but 1440 CSS px of page height instead of 1080, so a
-    // cover reaches a third further down and is likelier to end on a
-    // section boundary. The cost is a wider layout, so a centred container
-    // takes up less of the frame and its content reads slightly smaller.
-    const page = await browser.newPage({ viewport: { width: 2560, height: 1440 } });
+    const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
     await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
 
     await dismissCookieConsent(page);
