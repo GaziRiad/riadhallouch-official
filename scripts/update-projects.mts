@@ -228,22 +228,26 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
   },
   // Researched via scripts/detect-stack.mts — Next.js confirmed (framework
   // signal + x-powered-by: Next.js header), Tailwind confirmed by class-name
-  // density (44.6%), no CMS fingerprint. Unlike the Vercel-hosted projects,
-  // response headers show `server: nginx` behind a Plesk panel and no
-  // external script/asset hosts at all — this one is self-hosted, not on a
-  // managed platform, with no third-party CDN or analytics layered on top.
+  // density (44.6% homepage, up to 62.4% on /success-stories), no CMS
+  // fingerprint on the homepage. Unlike the Vercel-hosted projects, response
+  // headers show `server: nginx` behind a Plesk panel and no external
+  // script/asset hosts at all — this one is self-hosted, not on a managed
+  // platform, with no third-party CDN or analytics layered on top. (One
+  // exception: /success-stories alone does turn up a Sanity fingerprint —
+  // that section is CMS-backed while the rest of the site is static. Not
+  // reflected in `stack` below since it isn't the site-wide story.)
   // No year given (nothing in the captured page text pins one down) — left
   // to default to the current year, same as Stratalytic. No metrics field:
   // the real numbers on the site (1k+ users, 15k+ cameras, 2B images/min)
   // are Holocrow's own platform stats, not results of this build — kept in
   // the narrative prose instead of the stat-block field, so they don't read
-  // as achievements of the case study itself. Only a cover screenshot for
-  // now (the live homepage, which is genuinely the "Beyond Watching" hero
-  // Riad asked to use as the main shot — it's the first thing in the page's
-  // own DOM order, confirmed via detect-stack's text dump, so the pipeline's
-  // top-of-page capture gets it without needing a supplied file) — detail
-  // shots need confirmed subpage URLs first; guessed slugs risk capturing a
-  // broken/404 page.
+  // as achievements of the case study itself. Cover is the live homepage —
+  // genuinely the "Beyond Watching" hero Riad asked to use as the main shot,
+  // confirmed as the first thing in the page's own DOM order via
+  // detect-stack's text dump, so the pipeline's top-of-page capture gets it
+  // without needing a supplied file. /solutions and /success-stories were
+  // verified live (two guessed slugs, /how-it-works and /about-us, both
+  // 404'd and were dropped) before being used as detail shots.
   holocrow: {
     title: "Holocrow",
     meta: "AI computer vision website · Solo build",
@@ -256,13 +260,14 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
     narrativeApproach:
       "I organized the site around Holocrow's own four verticals — Retail & FMCG, Operational Excellence, Workplace Safety, Security — each with its own feature breakdown, rather than blending everything into one generic capabilities list. The 'how it works' section stays to three concrete steps (connect your cameras, pick what to track, get alerts) to keep the actual mechanics in front of the pitch instead of buried under it. Built in Next.js with Tailwind CSS, self-hosted on Holocrow's own infrastructure rather than a managed platform like Vercel, with no third-party CDN or analytics layered on top.",
     narrativeResult:
-      "Holocrow's site runs as a self-hosted Next.js build serving four distinct buyer journeys from one homepage. It leads with the company's own scale — 1,000+ active users, 15,000+ connected cameras, 2 billion images processed per minute — real numbers from Holocrow's deployed platform, not from this build.",
+      "Holocrow's site runs as a self-hosted Next.js build serving four distinct buyer journeys from one homepage, backed by a real success-stories library — a nationwide wildfire-detection network for Turkey's Directorate of Forestry, smart-city monitoring across Istanbul's 100,000+ municipal cameras, a 1,100-camera freezer-cabinet tracker feeding straight into Unilever's ERP, and a 4,275-camera planogram-validation rollout for Vodafone, among others. It leads with the company's own scale — 1,000+ active users, 15,000+ connected cameras, 2 billion images processed per minute — real numbers from Holocrow's deployed platform, not from this build.",
     stack: ["Next.js", "Tailwind CSS"],
     liveUrl: "https://holocrow.com/",
     onHomepage: true,
     featured: false,
     screenshots: {
       cover: "https://holocrow.com/",
+      details: ["https://holocrow.com/solutions", "https://holocrow.com/success-stories"],
     },
   },
 };
