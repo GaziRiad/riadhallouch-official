@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getAllProjects } from "@/sanity/queries";
 import { urlFor } from "@/sanity/image";
+import { BrowserChrome } from "@/components/ui/browser-chrome";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default async function WorkIndexPage() {
                 project.featured ? "bg-ink" : "bg-white"
               )}
             >
+              <BrowserChrome dark={project.featured} />
               <div
                 className="relative flex aspect-[16/9] items-center justify-center"
                 style={
@@ -60,7 +62,7 @@ export default async function WorkIndexPage() {
                       project.featured ? "text-paper-58" : "text-ink-62"
                     )}
                   >
-                    Shot — 1200×900
+                    Shot — 1920×1080
                   </span>
                 )}
               </div>

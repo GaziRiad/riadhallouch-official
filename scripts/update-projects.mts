@@ -404,7 +404,10 @@ async function captureScreenshot(url: string): Promise<Buffer | null> {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   try {
-    const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+    // 2560×1440 rather than 1920×1080: same 16:9 the layout expects, but a
+    // taller window reaches past the fold, so a shot lands on a section
+    // boundary instead of slicing through whatever sits at 1080px.
+    const page = await browser.newPage({ viewport: { width: 2560, height: 1440 } });
     await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
 
     await dismissCookieConsent(page);
