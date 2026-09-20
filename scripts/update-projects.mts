@@ -345,10 +345,7 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
   // live site" button rather than pointing at something that might be
   // stale or gone. Year "2025" from the site's own "2025" edition badge,
   // consistent with the LinkedIn post's "9mo" timestamp against today's
-  // date. No video yet — the LinkedIn full-post iframe embed looked bad
-  // (renders the whole post: reactions, comment box, share button, not
-  // just the clip) and got replaced with a native <video> element that
-  // only loads on click; set videoFile to a local path under
+  // date. No video yet — set videoFile to a local path under
   // scripts/assets/daas/ once the actual video file is available, same
   // pattern as PrimePC's local screenshots.
   daas: {
