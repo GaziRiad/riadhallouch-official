@@ -1,0 +1,24 @@
+name: Detect site tech stack
+
+# Manual, read-only research tool — loads a URL and reports framework/CMS/
+# analytics fingerprints in the job log via scripts/detect-stack.mts.
+# Touches nothing in Sanity, needs no secrets. Exists because this repo is
+# often edited from a sandbox whose network can't reach arbitrary external
+# sites, but GitHub's runners can.
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Space-separated URL(s) to inspect"
+        required: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npx tsx scripts/detect-stack.mts ${{ inputs.urls }}
