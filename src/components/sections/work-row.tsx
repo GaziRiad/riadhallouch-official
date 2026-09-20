@@ -9,6 +9,16 @@ import { urlFor } from "@/sanity/image";
 import { Reveal } from "@/components/ui/reveal";
 import { cn } from "@/lib/utils";
 
+/** Row teaser length. The case study page shows the overview in full. */
+const OVERVIEW_LIMIT = 380;
+
+function truncate(text: string, limit: number) {
+  if (text.length <= limit) return text;
+  const cut = text.slice(0, limit);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, lastSpace > 0 ? lastSpace : limit).replace(/[\s,.;:—–-]+$/, "")}…`;
+}
+
 export function WorkRow({ project, reverse }: { project: Project; reverse?: boolean }) {
   const imageRef = useRef<HTMLDivElement>(null);
   const coverUrl = urlFor(project.coverImage)?.width(1120).height(630).fit("crop").url();
@@ -57,12 +67,13 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
         reverse && "lg:flex-row-reverse"
       )}
     >
-      {/* lg:self-start: a flex row stretches items to the row height, which
-          overrides aspect-ratio — without it the frame grows with the
-          overview text beside it and object-cover crops the cover to fit. */}
+      {/* lg:self-center centres the cover against the text and, like any
+          align-self other than stretch, leaves the frame's height to
+          aspect-ratio — under the default stretch it grew with the overview
+          beside it and object-cover cropped the cover to fit. */}
       <div
         ref={imageRef}
-        className="border-ink-09 relative aspect-[16/9] flex-none overflow-hidden rounded border lg:w-[560px] lg:self-start"
+        className="border-ink-09 relative aspect-[16/9] flex-none overflow-hidden rounded border lg:w-[560px] lg:self-center"
         style={
           coverUrl
             ? undefined
@@ -91,7 +102,7 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
           {project.title}
         </h3>
         <p className="text-ink-64 mt-3.5 max-w-[46ch] text-base leading-[1.65] font-light">
-          {project.body}
+          {truncate(project.body, OVERVIEW_LIMIT)}
         </p>
         <div className="mt-[22px] flex flex-wrap gap-2">
           {project.stack.map((tech) => (
