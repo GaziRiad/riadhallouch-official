@@ -116,6 +116,24 @@ export default async function CaseStudyPage({
           )}
         </Reveal>
 
+        {project.videoEmbedUrl ? (
+          <Reveal className="mt-10 sm:mt-12">
+            <span className="text-accent-ink font-mono text-[11px] font-medium tracking-[.06em] uppercase">
+              See it in action
+            </span>
+            <div className="border-ink-09 bg-ink-07 mt-4 flex justify-center overflow-hidden rounded border">
+              <iframe
+                src={project.videoEmbedUrl}
+                height="640"
+                width="100%"
+                className="block max-w-[540px]"
+                allowFullScreen
+                title={`${project.title} — video`}
+              />
+            </div>
+          </Reveal>
+        ) : null}
+
         <Reveal className="bg-ink-12 mt-10 grid grid-cols-2 gap-px sm:mt-12 sm:grid-cols-4">
           {overview.map((item, i) => (
             <div key={item.label} className={`bg-bg py-5 ${i > 0 ? "sm:pl-6" : ""}`}>

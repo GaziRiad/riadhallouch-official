@@ -77,6 +77,13 @@ export const project = defineType({
       description: "Up to two detail shots shown on the case study page.",
     }),
     defineField({
+      name: "videoEmbedUrl",
+      title: "Video embed URL",
+      type: "url",
+      description:
+        'Optional. For a LinkedIn post video, use LinkedIn\'s own embed URL — from the post\'s "Embed this post" option, or built as https://www.linkedin.com/embed/feed/update/urn:li:activity:<ID>. Rendered as an iframe on the case study page, between the cover image and the overview.',
+    }),
+    defineField({
       name: "narrativeProblem",
       title: "The problem",
       type: "text",

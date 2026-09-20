@@ -100,6 +100,8 @@ type ProjectPatch = {
   onHomepage?: boolean;
   featured?: boolean;
   screenshots?: ScreenshotSpec;
+  /** Optional post embed (e.g. LinkedIn) rendered as an iframe on the case study page. */
+  videoEmbedUrl?: string;
   /** Optional featured pull-quote shown at the end of the case study page (not the homepage testimonials marquee). */
   testimonialQuote?: string;
   testimonialName?: string;
@@ -316,6 +318,47 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
     screenshots: {
       cover: "https://camille-brunette.com/",
       details: ["https://camille-brunette.com/about", "https://camille-brunette.com/portfolio"],
+    },
+  },
+  // Researched two ways, since there's no live production domain — Riad
+  // doesn't know if the client is still running this build, only that an
+  // old Vercel preview deployment still happens to be up:
+  //  1. scripts/detect-stack.mts against https://daas-xvf4.vercel.app/ —
+  //     Next.js confirmed, Tailwind confirmed (56% density), and a genuine
+  //     Sanity fingerprint (cdn.sanity.io asset host) — so contrary to
+  //     what Riad remembered, this preview does have real images.
+  //  2. scripts/detect-stack.mts against the LinkedIn post Riad linked —
+  //     worked without hitting a login wall (public post view) and
+  //     returned Riad's own post text: client is the Sharjah Architecture
+  //     Triennial, design by Olfa Farhat (same designer credited on
+  //     Wimbee), Riad's role was implementation.
+  // liveUrl deliberately omitted — the Vercel preview isn't a production
+  // domain and Riad doesn't know the current live status, so no "Visit
+  // live site" button rather than pointing at something that might be
+  // stale or gone. Year "2025" from the site's own "2025" edition badge,
+  // consistent with the LinkedIn post's "9mo" timestamp against today's
+  // date. videoEmbedUrl uses LinkedIn's own public embed URL format for
+  // the post (not a re-hosted copy of the video) — see project.ts.
+  daas: {
+    title: "DAAS",
+    meta: "Architecture research platform · Build & implementation",
+    gridCategory: "Web · Architecture",
+    year: "2025",
+    summary:
+      "A research platform for the Sharjah Architecture Triennial's DAAS program — designed by Olfa Farhat, built by me to make a dense, multi-city body of architectural research fast and easy to actually navigate.",
+    body: "DAAS (Decolonizing Architecture Advanced Studies) is a research program under the Sharjah Architecture Triennial, one of the most prominent architecture and urbanism platforms across the Middle East, North and East Africa, and Asia. I built the platform in Next.js with Tailwind CSS and Sanity, working from Olfa Farhat's design and concept. My job was turning a genuinely complex body of work — open calls, city-specific editions like Daas In Cairo and Daas In Sharjah, participant profiles, public programming — into something people could explore without getting lost.",
+    narrativeProblem:
+      "Architectural research platforms tend to bury the work: dense text, inconsistent navigation, no clear path through years of programming spread across multiple cities and editions. DAAS needed the opposite — information legible at a glance, a way to move through participants, editions, and public programs without friction, and a build that held up to the Triennial's own design standards rather than reading like an academic afterthought.",
+    narrativeApproach:
+      "Olfa Farhat led the design and conception; I built it in Next.js with Tailwind CSS, wired to Sanity so the Triennial's team can manage editions, participants, and programming without needing a developer for every update. The build prioritized exactly what the brief called for: information easy to understand at a glance, navigation without friction, and an experience fast and clean enough to match the Triennial's own identity rather than compete with it.",
+    narrativeResult:
+      "The site organizes DAAS's programming — open calls like Daas In Cairo, city editions like Daas In Sharjah: Site In Conversations — into something genuinely navigable, for a client where the research and the participants are the point and the site's only job is to get out of the way.",
+    stack: ["Next.js", "Tailwind CSS", "Sanity", "Vercel"],
+    onHomepage: true,
+    featured: false,
+    videoEmbedUrl: "https://www.linkedin.com/embed/feed/update/urn:li:activity:7404444896067235843",
+    screenshots: {
+      cover: "https://daas-xvf4.vercel.app/",
     },
   },
 };

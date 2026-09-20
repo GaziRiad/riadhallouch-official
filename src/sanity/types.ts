@@ -71,6 +71,8 @@ export type Project = {
   body: string;
   coverImage: SanityImage | null;
   detailImages: SanityImage[];
+  /** Optional LinkedIn (or other) post embed URL, rendered as an iframe between the cover image and the overview. */
+  videoEmbedUrl?: string;
   narrativeProblem: string;
   narrativeApproach: string;
   narrativeResult: string;
