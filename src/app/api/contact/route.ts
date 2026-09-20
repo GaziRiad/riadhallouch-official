@@ -46,7 +46,16 @@ export async function POST(request: Request) {
     const settings = await getSiteSettings();
     const res = await fetch(WEB3FORMS_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      // Origin/Referer are set explicitly because this call is made server
+      // side on behalf of the site rather than by the visitor's browser, so
+      // it would otherwise carry neither. A form with a domain restriction
+      // has nothing to match against and rejects it with a 403.
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Origin: settings.url,
+        Referer: `${settings.url}/contact`,
+      },
       body: JSON.stringify({
         access_key: accessKey,
         subject: `${reasonLabel} from ${name}`,
@@ -58,9 +67,17 @@ export async function POST(request: Request) {
       }),
     });
 
-    const data = await res.json().catch(() => null);
+    // Read as text first: a rejection at the edge comes back as HTML, and
+    // parsing it as JSON would discard the one thing that says why.
+    const raw = await res.text();
+    let data: { success?: boolean; message?: string } | null = null;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = null;
+    }
     if (!res.ok || !data?.success) {
-      throw new Error(data?.message ?? `Web3Forms request failed (${res.status})`);
+      throw new Error(data?.message ?? `Web3Forms ${res.status}: ${raw.slice(0, 300)}`);
     }
   } catch (error) {
     console.error("Failed to send contact email via Web3Forms", error);
