@@ -32,7 +32,8 @@ const PROJECT_FIELDS = /* groq */ `
   coverImage, "detailImages": coalesce(detailImages, []),
   narrativeProblem, narrativeApproach, narrativeResult,
   "stack": coalesce(stack, []), "metrics": coalesce(metrics, []),
-  liveUrl, repoUrl, featured, onHomepage
+  liveUrl, repoUrl, featured, onHomepage,
+  testimonialQuote, testimonialName, testimonialRole
 `;
 
 const ALL_PROJECTS_QUERY = /* groq */ `

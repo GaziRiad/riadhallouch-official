@@ -80,6 +80,10 @@ export type Project = {
   repoUrl?: string;
   featured?: boolean;
   onHomepage?: boolean;
+  /** Optional featured pull-quote shown at the end of the case study — separate from the homepage testimonials marquee. */
+  testimonialQuote?: string;
+  testimonialName?: string;
+  testimonialRole?: string;
 };
 
 export type Testimonial = {

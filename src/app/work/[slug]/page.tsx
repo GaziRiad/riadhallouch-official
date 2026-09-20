@@ -225,6 +225,28 @@ export default async function CaseStudyPage({
         </div>
       </div>
 
+      {project.testimonialQuote ? (
+        <section className="bg-bg-alt py-14 sm:py-[72px]">
+          <Reveal className="mx-auto max-w-[1440px] px-5 sm:px-11">
+            <div className="border-ink-10 bg-bg mx-auto max-w-[760px] rounded-[10px] border px-7 py-10 sm:px-14 sm:py-14">
+              <span className="bg-ink text-paper mb-6 inline-flex h-6 w-6 items-center justify-center rounded-[4px] text-[11px] font-semibold">
+                in
+              </span>
+              <p className="font-display text-ink text-[24px] leading-[1.4] sm:text-[30px]">
+                &ldquo;{project.testimonialQuote}&rdquo;
+              </p>
+              {project.testimonialName || project.testimonialRole ? (
+                <div className="text-ink-62 mt-6 font-mono text-[11.5px] tracking-[.05em] uppercase">
+                  {project.testimonialName}
+                  {project.testimonialName && project.testimonialRole ? " · " : ""}
+                  {project.testimonialRole}
+                </div>
+              ) : null}
+            </div>
+          </Reveal>
+        </section>
+      ) : null}
+
       <ProjectCta />
     </article>
   );

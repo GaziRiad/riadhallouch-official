@@ -118,6 +118,26 @@ export const project = defineType({
       ],
     }),
     defineField({
+      name: "testimonialQuote",
+      title: "Testimonial — quote",
+      type: "text",
+      rows: 3,
+      description: "Optional. Shown as a featured pull-quote at the end of this case study only — separate from the homepage testimonials marquee.",
+    }),
+    defineField({
+      name: "testimonialName",
+      title: "Testimonial — client name",
+      type: "string",
+      hidden: ({ document }) => !document?.testimonialQuote,
+    }),
+    defineField({
+      name: "testimonialRole",
+      title: "Testimonial — client role",
+      type: "string",
+      description: 'e.g. "Product Design Lead".',
+      hidden: ({ document }) => !document?.testimonialQuote,
+    }),
+    defineField({
       name: "liveUrl",
       title: "Live URL",
       type: "url",

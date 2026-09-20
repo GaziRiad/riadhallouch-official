@@ -100,6 +100,10 @@ type ProjectPatch = {
   onHomepage?: boolean;
   featured?: boolean;
   screenshots?: ScreenshotSpec;
+  /** Optional featured pull-quote shown at the end of the case study page (not the homepage testimonials marquee). */
+  testimonialQuote?: string;
+  testimonialName?: string;
+  testimonialRole?: string;
 };
 
 // Add one entry per project as Claude drafts the copy — key is the slug
@@ -270,6 +274,45 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       details: ["https://holocrow.com/solutions", "https://holocrow.com/success-stories"],
     },
   },
+  // Researched via scripts/detect-stack.mts — no framework fingerprint
+  // matched (not Next.js/Nuxt/Gatsby/etc.) and the Tailwind heuristic came
+  // back at 0%, so this is described honestly as a hand-built HTML/CSS/JS
+  // site rather than guessing a framework. Hosted on Netlify (server
+  // header), Google Analytics via GTM, one script loaded from unpkg.com.
+  // Year "2024" from the site's own footer copyright. This was one of
+  // Riad's earliest client projects — Camille designed it herself (she's a
+  // product designer) and Riad built it; she's been a repeat client since,
+  // which the copy mentions directly since Riad asked for it explicitly.
+  // Her testimonial (the one about this project specifically, not her
+  // more general LinkedIn recommendation) goes in the new testimonial*
+  // fields, which render as a featured pull-quote at the end of the case
+  // study page — see project.ts / work/[slug]/page.tsx.
+  "camille-brunette": {
+    title: "Camille Brunette",
+    meta: "Design portfolio website · Solo build",
+    gridCategory: "Web · Portfolio",
+    year: "2024",
+    summary:
+      "A personal portfolio site for a London-based product designer, built pixel-accurate to her own UX/UI designs — one of my very first client projects, and the start of a working relationship that's continued for years since.",
+    body: "Camille Brunette is a London-based product designer — she designs the case studies, brand work, and UI shown on her own portfolio; I built the site that presents it. This was one of the very first client projects I ever took on, hand-built in HTML, CSS, and JavaScript and deployed on Netlify — no framework overhead needed for a fast, focused portfolio site. Camille has been a repeat client ever since, and this project is where that relationship started.",
+    narrativeProblem:
+      "A product designer's portfolio has a specific bar to clear: the person hiring you can see the design skill directly in the mockups, so any gap between the design file and the live site reads immediately as a competence problem, not just a rough edge. Camille needed her case studies, brand and agency history, and personal introduction built exactly as designed — not 'close enough' — on a site fast and simple enough not to get in the way of the work it's showcasing.",
+    narrativeApproach:
+      "I built the site by hand in HTML, CSS, and JavaScript rather than reaching for a framework the project didn't need, matching Camille's designs closely enough that nothing needed a second pass — attention to spacing, type, and layout across the homepage, case studies, and about and contact pages. Deployed on Netlify with Google Analytics wired in, it stayed simple to maintain and fast to load, which mattered more here than any component architecture would have.",
+    narrativeResult:
+      "The site shipped matching Camille's own designs closely — exactly the bar a product designer's portfolio needs to clear. It was also where a longer working relationship started: Camille was one of the very first clients to trust me with a project, and she's returned for multiple projects since.",
+    stack: ["HTML", "CSS", "JavaScript", "Netlify"],
+    liveUrl: "https://camille-brunette.com/",
+    onHomepage: true,
+    featured: false,
+    testimonialQuote:
+      "Riad was an excellent developer for my website. His attention to detail was perfect, matching my designs very accurately. He met all of my requirements and was very easy to communicate with. He completed the project on time. I would absolutely recommend Riad and I can't wait to start another project with him. Thanks Riad!",
+    testimonialName: "Camille Brunette",
+    testimonialRole: "Product Design Lead",
+    screenshots: {
+      cover: "https://camille-brunette.com/",
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
@@ -352,7 +395,7 @@ async function resolveScreenshots(spec: ScreenshotSpec) {
     let buffer: Buffer;
     try {
       buffer = fs.readFileSync(absPath);
-    } catch (error) {
+    } catch {
       console.warn(`  ! Local screenshot not found: ${relPath}`);
       return null;
     }
