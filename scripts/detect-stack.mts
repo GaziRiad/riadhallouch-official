@@ -61,6 +61,18 @@ async function inspect(url: string) {
     const scripts = await page.$$eval("script[src], link[href]", (els) =>
       els.map((el) => el.getAttribute("src") || el.getAttribute("href") || "")
     );
+    // Tailwind fingerprint: sample every class attribute on the page and
+    // check what fraction of individual class tokens look like Tailwind
+    // utilities (spacing/flex/color-scale/breakpoint-prefixed patterns).
+    // A single match proves nothing (plenty of hand-rolled CSS uses
+    // "flex"), so this only counts as a signal above a density threshold.
+    const classTokens = await page.$$eval("[class]", (els) =>
+      els.flatMap((el) => el.className.toString().split(/\s+/).filter(Boolean))
+    );
+    const tailwindUtilityPattern =
+      /^(sm|md|lg|xl|2xl|hover|focus|dark|group-hover):.+|^(flex|grid|hidden|block|inline-flex)$|^(px|py|pt|pb|pl|pr|mx|my|mt|mb|ml|mr|gap|space-x|space-y)-\d+(\.\d+)?$|^(text|bg|border|ring)-(\w+-)?(50|100|200|300|400|500|600|700|800|900|950)$|^(rounded|shadow)(-\w+)?$|^w-(full|screen|\d+|\[.+\])$|^(items|justify)-(start|end|center|between|around)$/;
+    const tailwindHits = classTokens.filter((t) => tailwindUtilityPattern.test(t));
+    const tailwindDensity = classTokens.length ? tailwindHits.length / classTokens.length : 0;
     const fontLinks = await page.$$eval('link[href*="font"]', (els) =>
       els.map((el) => el.getAttribute("href") || "")
     );
@@ -91,6 +103,14 @@ async function inspect(url: string) {
     console.log("\nFramework signals found:");
     const frameworkHits = FRAMEWORK_SIGNALS.filter((f) => f.test(html, scripts));
     console.log(frameworkHits.length ? frameworkHits.map((f) => `  - ${f.name}`).join("\n") : "  (none matched)");
+
+    console.log("\nTailwind CSS heuristic:");
+    console.log(
+      `  ${classTokens.length} class tokens sampled, ${tailwindHits.length} look like Tailwind utilities (${(tailwindDensity * 100).toFixed(1)}%)`
+    );
+    console.log(
+      `  ${tailwindDensity > 0.3 ? "Likely Tailwind" : tailwindDensity > 0.1 ? "Possibly Tailwind (low confidence)" : "Probably not Tailwind, or utilities are minified/renamed"}`
+    );
 
     console.log("\nCMS signals found:");
     const cmsHits = CMS_SIGNALS.filter((f) => f.test(html, scripts));

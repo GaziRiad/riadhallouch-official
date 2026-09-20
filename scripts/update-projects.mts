@@ -1,8 +1,9 @@
 /**
  * Applies drafted case-study copy — and screenshots of the live site — to
- * existing project documents by slug. Claude fills in CASE_STUDIES below
- * (one entry per project, keyed by the slug already created in the
- * Studio); running this applies it, no manual Studio editing needed.
+ * project documents by slug, keyed in CASE_STUDIES below. Creates the
+ * document if the slug doesn't exist yet (auto-assigning the next index
+ * and sort order), otherwise patches the existing one — no manual Studio
+ * step required either way.
  *
  * Usage: npm run update:projects
  * Requires SANITY_PROJECT_ID, SANITY_DATASET, SANITY_API_WRITE_TOKEN in
@@ -17,10 +18,8 @@
  * SANITY_API_WRITE_TOKEN secret is set on the repo, this never needs to
  * be run by hand again.
  *
- * Only patches the fields listed per project; everything else on the
- * document (year, order, etc. if not listed) is left untouched. Refuses
- * to run for a slug that doesn't already exist as a project — create the
- * document in the Studio first, then run this to fill it in.
+ * On an existing document, only patches the fields listed per project —
+ * everything else (year, order, etc. if not listed) is left untouched.
  */
 import { createClient } from "@sanity/client";
 import path from "node:path";
@@ -72,6 +71,8 @@ type ProjectPatch = {
   title?: string;
   meta?: string;
   gridCategory?: string;
+  /** Only used if the slug doesn't exist yet and this creates a new document. */
+  year?: string;
   summary?: string;
   body?: string;
   narrativeProblem?: string;
@@ -235,10 +236,38 @@ async function main() {
       slug,
     });
 
+    const { screenshots, year, ...textFields } = CASE_STUDIES[slug];
+    const patch: Record<string, unknown> = { ...textFields };
+
+    if (screenshots) {
+      console.log(`Capturing screenshots for "${slug}"...`);
+      const { coverImage, detailImages } = await resolveScreenshots(screenshots);
+      if (coverImage) patch.coverImage = coverImage;
+      if (detailImages.length) patch.detailImages = detailImages;
+    }
+
     if (!ids.length) {
-      console.error(
-        `✗ No project with slug "${slug}" found — create it in the Studio first (Projects → Create → set the slug), then re-run.`
-      );
+      // No document with this slug anywhere — create one instead of
+      // requiring it to already exist in the Studio.
+      if (!textFields.title) {
+        console.error(`✗ "${slug}" has no existing document and no title in CASE_STUDIES — skipping.`);
+        continue;
+      }
+      const [maxOrder, count] = await Promise.all([
+        client.fetch<number | null>(`math::max(*[_type == "project"].order)`),
+        client.fetch<number>(`count(*[_type == "project"])`),
+      ]);
+      const order = (maxOrder ?? -1) + 1;
+      const index = String(count + 1).padStart(2, "0");
+      const created = await client.create({
+        _type: "project",
+        slug: { _type: "slug", current: slug },
+        index,
+        year: year ?? String(new Date().getFullYear()),
+        order,
+        ...patch,
+      });
+      console.log(`✓ Created "${slug}" (${created._id}) — index ${index}, order ${order}`);
       continue;
     }
 
@@ -247,16 +276,6 @@ async function main() {
       console.warn(
         `  ! Found ${baseIds.length} different documents with slug "${slug}" (not just a draft/published pair of the same one) — updating all of them. You likely have a duplicate to delete in the Studio.`
       );
-    }
-
-    const { screenshots, ...textFields } = CASE_STUDIES[slug];
-    const patch: Record<string, unknown> = { ...textFields };
-
-    if (screenshots) {
-      console.log(`Capturing screenshots for "${slug}"...`);
-      const { coverImage, detailImages } = await resolveScreenshots(screenshots);
-      if (coverImage) patch.coverImage = coverImage;
-      if (detailImages.length) patch.detailImages = detailImages;
     }
 
     for (const bid of baseIds) {
