@@ -1,10 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useGSAP } from "@gsap/react";
-import { gsap, registerGsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/motion";
 import type { Project } from "@/sanity/types";
 import { urlFor } from "@/sanity/image";
@@ -15,29 +13,42 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
   const imageRef = useRef<HTMLDivElement>(null);
   const coverUrl = urlFor(project.coverImage)?.width(1120).height(630).fit("crop").url();
 
-  useGSAP(
-    () => {
-      registerGsap();
-      if (!imageRef.current || prefersReducedMotion()) return;
+  // The wipe hides the cover until it scrolls in, so anything that stops it
+  // finishing leaves a row with no visible image at all — which is what a
+  // ScrollTrigger measuring against a pre-image-load page height did. An
+  // observer on the element itself needs no page measurements, and the
+  // element is only ever hidden once we know it is still off screen, so the
+  // worst case is a cover that appears without animating.
+  useEffect(() => {
+    const el = imageRef.current;
+    if (!el || prefersReducedMotion()) return;
 
-      gsap.fromTo(
-        imageRef.current,
-        { clipPath: "inset(0 0 0 100%)", scale: 1.06 },
-        {
-          clipPath: "inset(0 0 0 0%)",
-          scale: 1,
-          duration: 1.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: imageRef.current,
-            start: "top 80%",
-            once: true,
-          },
-        }
-      );
-    },
-    { scope: imageRef }
-  );
+    const reveal = () => {
+      el.style.transition = "clip-path 1.1s cubic-bezier(.16,1,.3,1)";
+      el.style.clipPath = "inset(0 0 0 0%)";
+    };
+
+    // Watch the row, never the frame itself: a clip-path that hides the
+    // frame also hides it from the observer, so observing it would wait on
+    // an intersection that can never be reported.
+    const row = el.parentElement;
+    if (!row) return;
+
+    if (el.getBoundingClientRect().top < window.innerHeight * 0.8) return;
+    el.style.clipPath = "inset(0 0 0 100%)";
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        reveal();
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -20% 0px" }
+    );
+    observer.observe(row);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
