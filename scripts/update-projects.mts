@@ -5,6 +5,11 @@
  * and sort order), otherwise patches the existing one — no manual Studio
  * step required either way.
  *
+ * A screenshot entry can also be `{ file: "assets/<slug>/name.png" }`
+ * instead of a URL, for pages the pipeline can't capture itself (an
+ * admin dashboard, a logged-in account page). Drop the image under
+ * scripts/assets/<slug>/ and it's uploaded as-is — no live navigation.
+ *
  * Usage: npm run update:projects
  * Requires SANITY_PROJECT_ID, SANITY_DATASET, SANITY_API_WRITE_TOKEN in
  * env (.env.local is loaded automatically) — the same ones seed-sanity.mts
@@ -22,6 +27,7 @@
  * everything else (year, order, etc. if not listed) is left untouched.
  */
 import { createClient } from "@sanity/client";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -55,11 +61,20 @@ const client = createClient({
   useCdn: false,
 });
 
+/**
+ * Either a live URL to capture with Playwright (the usual case), or a
+ * `{ file }` pointing at an image already committed under
+ * scripts/assets/<slug>/ — for pages the pipeline can't reach itself
+ * (auth-gated admin/user panels, etc.). Drop the screenshot in that
+ * folder, reference it here, and it's uploaded as-is, no capture step.
+ */
+type ScreenshotSource = string | { file: string };
+
 type ScreenshotSpec = {
-  /** URL for the case study's cover image (hero shot). */
-  cover: string;
-  /** Up to 2 URLs for the case study's detail gallery. */
-  details?: string[];
+  /** Cover image (hero shot) — usually the live homepage. */
+  cover: ScreenshotSource;
+  /** Up to 2 sources for the case study's detail gallery. */
+  details?: ScreenshotSource[];
 };
 
 type SanityImageRef = {
@@ -176,6 +191,41 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       ],
     },
   },
+  // Researched via scripts/detect-stack.mts — Next.js confirmed, Tailwind
+  // confirmed by class-name density (37.4%), Vercel confirmed via the
+  // x-vercel-id response header (Cloudflare sits in front as DNS/CDN, not
+  // the host), no CMS fingerprint matched — content is served by a custom
+  // admin system, not a headless CMS. Year from the site's own footer
+  // copyright ("© 2026 PRIMEPC"). The admin "Control Center" and customer
+  // account screenshots came from Riad directly (auth-gated, the pipeline
+  // can't log in) as local files under scripts/assets/primepc/ — see the
+  // `{ file }` screenshot source below. Deliberately no metrics field:
+  // the admin dashboard shows a small, early order volume (mostly
+  // cancelled/failed test orders), so there's no verified result number
+  // worth putting on the case study yet.
+  primepc: {
+    title: "PrimePC",
+    meta: "E-commerce platform · Solo build",
+    gridCategory: "Web · E-commerce",
+    year: "2026",
+    summary:
+      "A custom-built e-commerce platform for an Algerian laptop and gaming-gear retailer — storefront, cash-on-delivery checkout, and a self-built admin system to run inventory, orders, and sales, all in one Next.js codebase.",
+    body: "PrimePC is an Algerian e-commerce retailer selling laptops — mostly refurbished business-grade Lenovo, HP, and Dell models — plus gaming and accessory gear, shipping nationwide with cash-on-delivery. I built the platform end to end in Next.js with Tailwind CSS on Vercel: the storefront, cart, wishlist, and customer accounts, plus a custom admin system — no Shopify, no WooCommerce, no third-party CMS underneath any of it. Inventory, orders, and site content are all managed through an admin dashboard built specifically for how this store actually runs.",
+    narrativeProblem:
+      "Algerian e-commerce runs on different rules than a typical Shopify build: cash-on-delivery is the default, so trust is built by letting people inspect a product before they pay rather than by a checkout page; delivery splits between paid home delivery and a free 'Stop Desk' pickup point; and the core inventory — refurbished corporate laptops bought and resold at a markup — turns over fast enough that stock status has to be accurate in real time. None of the off-the-shelf platforms map cleanly onto that without expensive workarounds, and PrimePC needed something that could run the actual business day to day, not just display a catalog.",
+    narrativeApproach:
+      "I built the storefront and a full admin system from scratch in one Next.js codebase rather than layering custom logic on top of Shopify or WooCommerce. The storefront handles category browsing (gaming, professional, student laptops, accessories), stock-aware add-to-cart, wishlist, and a checkout built around cash-on-delivery rather than a card-first flow. The admin side — a 'Control Center' — is the part that actually runs the business: live stock and order counts, a 30-day sales and revenue overview, an order-status breakdown (confirmed, shipped, delivered, cancelled), and product-level conversion tracking from views through cart adds to checkout starts, so PrimePC can see which listings are actually converting, not just which ones get clicks.",
+    narrativeResult:
+      "PrimePC runs as a single Next.js codebase on Vercel with no third-party e-commerce platform underneath it — storefront, cash-on-delivery checkout, customer accounts, and a self-built admin dashboard giving full visibility into stock, orders, and per-product conversion, all in one system built and controlled end to end.",
+    stack: ["Next.js", "Tailwind CSS", "Vercel"],
+    liveUrl: "https://primepcdz.com/",
+    onHomepage: true,
+    featured: false,
+    screenshots: {
+      cover: "https://primepcdz.com/",
+      details: [{ file: "scripts/assets/primepc/admin-control-center.webp" }, { file: "scripts/assets/primepc/account-details.png" }],
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
@@ -253,7 +303,20 @@ async function resolveScreenshots(spec: ScreenshotSpec) {
     }
   };
 
-  const uploadIfCaptured = async (url: string): Promise<SanityImageRef | null> => {
+  const uploadLocalFile = async (relPath: string): Promise<SanityImageRef | null> => {
+    const absPath = path.resolve(root, relPath);
+    let buffer: Buffer;
+    try {
+      buffer = fs.readFileSync(absPath);
+    } catch (error) {
+      console.warn(`  ! Local screenshot not found: ${relPath}`);
+      return null;
+    }
+    const asset = await client.assets.upload("image", buffer, { filename: path.basename(relPath) });
+    return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
+  };
+
+  const uploadCaptured = async (url: string): Promise<SanityImageRef | null> => {
     const buffer = await tryCapture(url);
     if (!buffer) return null;
     const asset = await client.assets.upload("image", buffer, {
@@ -262,13 +325,18 @@ async function resolveScreenshots(spec: ScreenshotSpec) {
     return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
   };
 
-  console.log(`  Capturing cover screenshot (${spec.cover})...`);
-  const coverImage = await uploadIfCaptured(spec.cover);
+  const resolveOne = (source: ScreenshotSource) =>
+    typeof source === "string" ? uploadCaptured(source) : uploadLocalFile(source.file);
+  const describe = (source: ScreenshotSource) => (typeof source === "string" ? source : source.file);
+  const verb = (source: ScreenshotSource) => (typeof source === "string" ? "Capturing" : "Uploading local");
+
+  console.log(`  ${verb(spec.cover)} cover screenshot (${describe(spec.cover)})...`);
+  const coverImage = await resolveOne(spec.cover);
 
   const detailImages: SanityImageRef[] = [];
-  for (const url of spec.details?.slice(0, 2) ?? []) {
-    console.log(`  Capturing detail screenshot (${url})...`);
-    const image = await uploadIfCaptured(url);
+  for (const source of spec.details?.slice(0, 2) ?? []) {
+    console.log(`  ${verb(source)} detail screenshot (${describe(source)})...`);
+    const image = await resolveOne(source);
     if (image) detailImages.push(image);
   }
 
