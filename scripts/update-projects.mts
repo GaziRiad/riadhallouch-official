@@ -286,7 +286,11 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
   // Her testimonial (the one about this project specifically, not her
   // more general LinkedIn recommendation) goes in the new testimonial*
   // fields, which render as a featured pull-quote at the end of the case
-  // study page — see project.ts / work/[slug]/page.tsx.
+  // study page — see project.ts / work/[slug]/page.tsx. /about and
+  // /portfolio verified live (rich content on both — /portfolio even
+  // lists her own real case studies with real results) before use as
+  // detail shots; /contact was too sparse to bother with, and the
+  // schema only fits two anyway.
   "camille-brunette": {
     title: "Camille Brunette",
     meta: "Design portfolio website · Solo build",
@@ -311,6 +315,7 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
     testimonialRole: "Product Design Lead",
     screenshots: {
       cover: "https://camille-brunette.com/",
+      details: ["https://camille-brunette.com/about", "https://camille-brunette.com/portfolio"],
     },
   },
 };
