@@ -9,7 +9,6 @@ import { prefersReducedMotion } from "@/lib/motion";
 import type { Project } from "@/sanity/types";
 import { urlFor } from "@/sanity/image";
 import { Reveal } from "@/components/ui/reveal";
-import { BrowserChrome } from "@/components/ui/browser-chrome";
 import { cn } from "@/lib/utils";
 
 export function WorkRow({ project, reverse }: { project: Project; reverse?: boolean }) {
@@ -49,27 +48,22 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
     >
       <div
         ref={imageRef}
-        className="border-ink-09 flex-none overflow-hidden rounded border lg:w-[560px]"
+        className="border-ink-09 relative aspect-[16/9] flex-none overflow-hidden rounded border lg:w-[560px]"
+        style={
+          coverUrl
+            ? undefined
+            : { backgroundImage: "repeating-linear-gradient(135deg, #e9e5dc 0 7px, #f2efe8 7px 14px)" }
+        }
       >
-        <BrowserChrome />
-        <div
-          className="relative aspect-[16/9]"
-          style={
-            coverUrl
-              ? undefined
-              : { backgroundImage: "repeating-linear-gradient(135deg, #e9e5dc 0 7px, #f2efe8 7px 14px)" }
-          }
-        >
-          {coverUrl ? (
-            <Image src={coverUrl} alt={project.title} fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <span className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
-                Project shot — 1920×1080
-              </span>
-            </div>
-          )}
-        </div>
+        {coverUrl ? (
+          <Image src={coverUrl} alt={project.title} fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
+              Project shot — 1600×1000
+            </span>
+          </div>
+        )}
       </div>
 
       <Reveal className="relative flex flex-1 flex-col" y={24}>
