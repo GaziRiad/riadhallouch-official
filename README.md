@@ -11,7 +11,7 @@ Content is managed in **Sanity** — see [Content — editing via Sanity](#conte
 - **GSAP** + `@gsap/react` (`ScrollTrigger`) for motion — no smooth-scroll hijacking (native scroll), `prefers-reduced-motion` disables every tween
 - **Sanity** (standalone Studio in `studio/`, `next-sanity` client in the app) — every content field on the site, editable without a deploy
 - **Cal.com embed** (`@calcom/embed-react`) for booking — lazy-loaded on first click, never in the initial bundle (`src/lib/cal.ts`)
-- **react-hook-form** + **zod** for the contact form, **Web3Forms** for email delivery, in-memory rate limiting
+- **react-hook-form** + **zod** for the contact form, **Web3Forms** for email delivery
 - Full file-based SEO: `sitemap.ts`, `robots.ts`, `manifest.ts`, dynamic OG image, JSON-LD (`Person` + `ProfessionalService`/`AggregateRating`) — all sourced from Sanity
 
 ## Routes
@@ -118,7 +118,7 @@ The **AggregateRating** in JSON-LD is sourced from the "Average rating" / "Five-
 
 ## Contact form
 
-`src/app/api/contact/route.ts` validates submissions with zod, rate-limits by IP (`src/lib/rate-limit.ts` — in-memory, fine for a single instance; swap for Upstash/Redis if you scale past one region), and sends email via [Web3Forms](https://web3forms.com) (server-side, so the access key never ships to the client). Set `WEB3FORMS_ACCESS_KEY` in your environment (see `.env.example`). Without it, the form returns a clear "not configured yet" error instead of failing silently.
+The contact form validates with zod (`src/lib/validation.ts`) and submits straight to [Web3Forms](https://web3forms.com) from the browser, which is how they intend it to be used — relaying it from a server route got the request served Cloudflare's bot challenge instead of the API. Set `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (see `.env.example`). The key is public by design; restrict the form to your domain in the Web3Forms dashboard, and keep their spam protection on. A hidden honeypot field drops obvious bots before the request is made.
 
 ## Booking
 
@@ -129,5 +129,5 @@ The **AggregateRating** in JSON-LD is sourced from the "Average rating" / "Five-
 Any Next.js host works; this project deploys to Vercel (`vercel.json` pins `"framework": "nextjs"` explicitly — if a deploy ever fails with an output-directory error, check Vercel dashboard → Project Settings → General → Build & Output Settings for a stale manual override). Before going live:
 
 1. Complete the Sanity one-time setup above, and set the real production `url` on Site settings — it feeds metadata, sitemap, and JSON-LD.
-2. Add `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, and `WEB3FORMS_ACCESS_KEY` to your host's environment variables. Never add `SANITY_API_WRITE_TOKEN` there — it's only needed locally, once, for the seed script.
+2. Add `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, and `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` to your host's environment variables. Never add `SANITY_API_WRITE_TOKEN` there — it's only needed locally, once, for the seed script.
 3. Deploy the Studio (`cd studio && npm run deploy`) and add your production domain to Sanity's CORS origins.

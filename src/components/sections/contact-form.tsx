@@ -17,6 +17,19 @@ const inputClass =
 
 const DEFAULT_ERROR = "Something went wrong — email me directly instead.";
 
+// Submitted straight from the browser, which is how Web3Forms is designed to
+// be used: relaying it from the server got the request served Cloudflare's
+// bot challenge instead of the API. The key is public by design — the guard
+// against someone reusing it is the domain restriction on the form itself.
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+const ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+
+const REASON_LABELS: Record<ContactInput["reason"], string> = {
+  project: "New project inquiry",
+  "full-time": "Full-time opportunity",
+  other: "General inquiry",
+};
+
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState(DEFAULT_ERROR);
@@ -38,15 +51,38 @@ export function ContactForm() {
   // eslint-disable-next-line react-hooks/refs
   const submit = handleSubmit(async (data) => {
     setStatus("idle");
+
+    // Honeypot: invisible to people, so anything in it came from a bot. Show
+    // success rather than an error, so a bot learns nothing from the reply.
+    if (honeypotRef.current?.value) {
+      setStatus("success");
+      reset();
+      return;
+    }
+
+    if (!ACCESS_KEY) {
+      setErrorMessage("Email delivery isn't configured yet — email me directly instead.");
+      setStatus("error");
+      return;
+    }
+
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, company: honeypotRef.current?.value ?? "" }),
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: ACCESS_KEY,
+          subject: `${REASON_LABELS[data.reason]} from ${data.name}`,
+          from_name: "riadhallouch.com",
+          name: data.name,
+          email: data.email,
+          reason: REASON_LABELS[data.reason],
+          message: data.message,
+        }),
       });
       const body = await res.json().catch(() => null);
-      if (!res.ok) {
-        setErrorMessage(body?.error || DEFAULT_ERROR);
+      if (!res.ok || !body?.success) {
+        setErrorMessage(body?.message || DEFAULT_ERROR);
         setStatus("error");
         return;
       }

@@ -8,9 +8,3 @@ export const contactSchema = z.object({
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;
-
-// `company` is a honeypot field: real visitors never see or fill it, so any
-// non-empty value is a strong signal the submission came from a bot.
-export const contactRequestSchema = contactSchema.extend({
-  company: z.string().max(0).optional(),
-});
