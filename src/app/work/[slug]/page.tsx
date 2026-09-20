@@ -48,6 +48,10 @@ export default async function CaseStudyPage({
     .map((img) => urlFor(img)?.width(1200).height(900).fit("crop").url())
     .filter((url): url is string => Boolean(url));
 
+  // A video fills the gallery slot on its own, so skip the "awaiting a
+  // screenshot" placeholder tiles that otherwise pad the row out to two.
+  const detailTileCount = project.videoUrl ? detailUrls.length : 2;
+
   const timeline = project.meta.split(" · ")[1] ?? project.meta;
   const overview = [
     { label: "Category", value: project.gridCategory },
@@ -116,24 +120,6 @@ export default async function CaseStudyPage({
           )}
         </Reveal>
 
-        {project.videoUrl ? (
-          <Reveal className="mt-10 sm:mt-12">
-            <span className="text-accent-ink font-mono text-[11px] font-medium tracking-[.06em] uppercase">
-              See it in action
-            </span>
-            {/* preload="none": nothing downloads until the visitor presses play — a video here shouldn't cost this page a single extra byte on load. */}
-            <video
-              className="border-ink-09 mt-4 aspect-video w-full rounded border bg-black"
-              controls
-              preload="none"
-              playsInline
-              poster={coverUrl}
-            >
-              <source src={project.videoUrl} />
-            </video>
-          </Reveal>
-        ) : null}
-
         <Reveal className="bg-ink-12 mt-10 grid grid-cols-2 gap-px sm:mt-12 sm:grid-cols-4">
           {overview.map((item, i) => (
             <div key={item.label} className={`bg-bg py-5 ${i > 0 ? "sm:pl-6" : ""}`}>
@@ -176,32 +162,52 @@ export default async function CaseStudyPage({
           ) : null}
         </div>
 
-        <Reveal className="mt-12 grid grid-cols-1 gap-4 sm:mt-14 sm:grid-cols-2">
-          {[0, 1].map((i) => {
-            const detailUrl = detailUrls[i];
-            return (
-              <div
-                key={i}
-                className="border-ink-09 relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded border"
-                style={detailUrl ? undefined : { backgroundImage: placeholderPattern() }}
-              >
-                {detailUrl ? (
-                  <Image
-                    src={detailUrl}
-                    alt={`${project.title} detail ${i + 1}`}
-                    fill
-                    sizes="(min-width: 640px) 50vw, 100vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <span className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
-                    Detail shot — 1200×900
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </Reveal>
+        {project.videoUrl ? (
+          <Reveal className="mt-12 sm:mt-14">
+            <span className="text-accent-ink font-mono text-[11px] font-medium tracking-[.06em] uppercase">
+              See it in action
+            </span>
+            {/* preload="none": nothing downloads until the visitor presses play — a video here shouldn't cost this page a single extra byte on load. */}
+            <video
+              className="border-ink-09 mt-4 aspect-video w-full rounded border bg-black"
+              controls
+              preload="none"
+              playsInline
+              poster={coverUrl}
+            >
+              <source src={project.videoUrl} />
+            </video>
+          </Reveal>
+        ) : null}
+
+        {detailTileCount ? (
+          <Reveal className="mt-12 grid grid-cols-1 gap-4 sm:mt-14 sm:grid-cols-2">
+            {Array.from({ length: detailTileCount }, (_, i) => {
+              const detailUrl = detailUrls[i];
+              return (
+                <div
+                  key={i}
+                  className="border-ink-09 relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded border"
+                  style={detailUrl ? undefined : { backgroundImage: placeholderPattern() }}
+                >
+                  {detailUrl ? (
+                    <Image
+                      src={detailUrl}
+                      alt={`${project.title} detail ${i + 1}`}
+                      fill
+                      sizes="(min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-ink-62 font-mono text-[10.5px] tracking-[.06em] uppercase">
+                      Detail shot — 1200×900
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </Reveal>
+        ) : null}
 
         <div className="mx-auto mt-14 max-w-[68ch] sm:mt-16">
           {project.narrativeResult ? (
