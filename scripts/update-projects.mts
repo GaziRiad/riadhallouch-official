@@ -226,6 +226,45 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       details: [{ file: "scripts/assets/primepc/admin-control-center.webp" }, { file: "scripts/assets/primepc/account-details.png" }],
     },
   },
+  // Researched via scripts/detect-stack.mts — Next.js confirmed (framework
+  // signal + x-powered-by: Next.js header), Tailwind confirmed by class-name
+  // density (44.6%), no CMS fingerprint. Unlike the Vercel-hosted projects,
+  // response headers show `server: nginx` behind a Plesk panel and no
+  // external script/asset hosts at all — this one is self-hosted, not on a
+  // managed platform, with no third-party CDN or analytics layered on top.
+  // No year given (nothing in the captured page text pins one down) — left
+  // to default to the current year, same as Stratalytic. No metrics field:
+  // the real numbers on the site (1k+ users, 15k+ cameras, 2B images/min)
+  // are Holocrow's own platform stats, not results of this build — kept in
+  // the narrative prose instead of the stat-block field, so they don't read
+  // as achievements of the case study itself. Only a cover screenshot for
+  // now (the live homepage, which is genuinely the "Beyond Watching" hero
+  // Riad asked to use as the main shot — it's the first thing in the page's
+  // own DOM order, confirmed via detect-stack's text dump, so the pipeline's
+  // top-of-page capture gets it without needing a supplied file) — detail
+  // shots need confirmed subpage URLs first; guessed slugs risk capturing a
+  // broken/404 page.
+  holocrow: {
+    title: "Holocrow",
+    meta: "AI computer vision website · Solo build",
+    gridCategory: "Web · Computer Vision",
+    summary:
+      "Marketing site for an AI computer-vision platform that plugs into a facility's existing CCTV cameras — turning camera feeds into retail analytics, safety alerts, and security detection across four verticals, no new hardware required.",
+    body: "Holocrow is a computer-vision company building deep-learning models that turn a facility's existing CCTV feeds into structured data — visitor counts, PPE compliance, restricted-area breaches, stock levels, and more — across four verticals: Retail & FMCG, Operational Excellence, Workplace Safety, and Security. I built their marketing site solo in Next.js with Tailwind CSS, self-hosted on their own server rather than a managed platform. The job was making a genuinely wide product — dozens of distinct detection features spanning four industries — read clearly to four different kinds of buyers on one homepage.",
+    narrativeProblem:
+      "Holocrow's product covers an unusually wide feature surface: visitor counting and heatmaps for retail, PPE and machine-interaction monitoring for workplace safety, facial recognition and crowd analysis for security, stock and packaging checks for operations — all running on cameras a customer already owns. A retail buyer and a safety officer are looking for completely different things on the same homepage, and 'plug into your existing CCTV, no new hardware' is the kind of claim that needs to read as credible and specific, not like marketing shorthand for something more complicated to actually set up.",
+    narrativeApproach:
+      "I organized the site around Holocrow's own four verticals — Retail & FMCG, Operational Excellence, Workplace Safety, Security — each with its own feature breakdown, rather than blending everything into one generic capabilities list. The 'how it works' section stays to three concrete steps (connect your cameras, pick what to track, get alerts) to keep the actual mechanics in front of the pitch instead of buried under it. Built in Next.js with Tailwind CSS, self-hosted on Holocrow's own infrastructure rather than a managed platform like Vercel, with no third-party CDN or analytics layered on top.",
+    narrativeResult:
+      "Holocrow's site runs as a self-hosted Next.js build serving four distinct buyer journeys from one homepage. It leads with the company's own scale — 1,000+ active users, 15,000+ connected cameras, 2 billion images processed per minute — real numbers from Holocrow's deployed platform, not from this build.",
+    stack: ["Next.js", "Tailwind CSS"],
+    liveUrl: "https://holocrow.com/",
+    onHomepage: true,
+    featured: false,
+    screenshots: {
+      cover: "https://holocrow.com/",
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
