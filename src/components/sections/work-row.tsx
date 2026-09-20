@@ -57,9 +57,12 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
         reverse && "lg:flex-row-reverse"
       )}
     >
+      {/* lg:self-start: a flex row stretches items to the row height, which
+          overrides aspect-ratio — without it the frame grows with the
+          overview text beside it and object-cover crops the cover to fit. */}
       <div
         ref={imageRef}
-        className="border-ink-09 relative aspect-[16/9] flex-none overflow-hidden rounded border lg:w-[560px]"
+        className="border-ink-09 relative aspect-[16/9] flex-none overflow-hidden rounded border lg:w-[560px] lg:self-start"
         style={
           coverUrl
             ? undefined
