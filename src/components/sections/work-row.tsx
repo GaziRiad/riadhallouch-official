@@ -101,7 +101,7 @@ export function WorkRow({ project, reverse }: { project: Project; reverse?: bool
         <h3 className="font-display text-ink mt-4 text-[28px] leading-[1.1] tracking-[-.02em] group-hover:underline sm:text-[38px]">
           {project.title}
         </h3>
-        <p className="text-ink-64 mt-3.5 max-w-[46ch] text-base leading-[1.65] font-light">
+        <p className="text-ink-64 mt-3.5 text-base leading-[1.65] font-light">
           {truncate(project.body, OVERVIEW_LIMIT)}
         </p>
         <div className="mt-[22px] flex flex-wrap gap-2">
