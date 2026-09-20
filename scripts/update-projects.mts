@@ -144,6 +144,38 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       details: ["https://stratalytic.nl/cases/retailer-personalization", "https://stratalytic.nl/subsidie-wbso"],
     },
   },
+  // Researched via scripts/detect-stack.mts — Next.js + Tailwind + Vercel
+  // confirmed the same way as the others, and this one also turned up a
+  // genuine Sanity fingerprint (cdn.sanity.io as an asset host on every
+  // page checked), unlike Stratalytic where nothing matched. Year taken
+  // from the site's own footer copyright ("2025 © All rights reserved"),
+  // not defaulted.
+  tujikuze: {
+    title: "Tujikuze",
+    meta: "Ethical fashion production site · Solo build",
+    gridCategory: "Web · Ethical Fashion",
+    year: "2025",
+    summary:
+      "A B2B production and impact site for a Kenyan artisan fashion collective — built to land global brand partnerships, backed by a Sanity-managed case-study system for stories like a Karl Lagerfeld collaboration.",
+    body: "Tujikuze is a Kenyan social enterprise — a partnership of four local companies working with artisan groups across the country — that produces bags, accessories, and craft techniques (beadwork, crochet, macramé, metal engraving) for fashion brands, under the umbrella of the UN's Ethical Fashion Initiative. I built their site solo in Next.js with Tailwind CSS, wired to Sanity so their team can add new case studies and materials without a developer. The site's job is straightforward: convince a brand's sourcing team that Tujikuze can deliver artisanal work at real production scale, then prove it with case studies.",
+    narrativeProblem:
+      "Tujikuze's pitch is unusual for a production partner: purpose-driven manufacturing at real commercial scale, not a boutique craft shop. That needed a site carrying two audiences at once — brand sourcing teams evaluating capacity, materials, and reliability, and a general audience reading the impact story — without the craft-and-impact side undercutting the 'we can actually deliver at scale' side. It also needed a way to keep adding case studies — a Karl Lagerfeld collaboration, a 105,000-unit order for an Italian retailer, their own in-house brand launch — without a rebuild each time one landed.",
+    narrativeApproach:
+      "I structured the site around what a sourcing team checks first — the offer (materials, techniques, production capabilities) and the impact story — before getting to case studies and resources. Content lives in Sanity: case studies, materials, and the resources section are all editable without touching code, which matters here specifically because the case-study list is the site's strongest sales asset and needed to grow on Tujikuze's own timeline, not a dev team's. Built in Next.js with Tailwind CSS, deployed on Vercel.",
+    narrativeResult:
+      "The site runs a growing case-study library — from a 105,000-unit beaded-tassel order for Conad Nord Ovest to a Karl Lagerfeld x Amber Valletta capsule collaboration — alongside Tujikuze's own product brand, Hands Of Fashion, all content-managed rather than hardcoded. A new client win or brand launch goes into Sanity, not into a code review.",
+    stack: ["Next.js", "Tailwind CSS", "Sanity"],
+    liveUrl: "https://tujikuze.com/",
+    onHomepage: true,
+    featured: false,
+    screenshots: {
+      cover: "https://tujikuze.com/",
+      details: [
+        "https://tujikuze.com/ressources/karl-lagerfeld-x-amber-valletta-ss-2025-produced-with-efi",
+        "https://tujikuze.com/ressources/launching-hands-of-fashion-a-brand-by-the-artisans-of-the-ethical-fashion-initiative",
+      ],
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
