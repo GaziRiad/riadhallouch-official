@@ -69,10 +69,24 @@ async function inspect(url: string) {
       .locator('meta[name="generator"]')
       .getAttribute("content")
       .catch(() => null);
+    const metaDescription = await page
+      .locator('meta[name="description"]')
+      .getAttribute("content")
+      .catch(() => null);
+    const visibleText = await page.evaluate(() => document.body.innerText);
 
     console.log(`\n=== ${url} ===`);
     console.log(`Title: ${title}`);
+    if (metaDescription) console.log(`Meta description: ${metaDescription}`);
     if (metaGenerator) console.log(`<meta name="generator">: ${metaGenerator}`);
+
+    console.log("\nVisible page text (for content research):");
+    console.log(
+      visibleText
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+        .slice(0, 6000)
+    );
 
     console.log("\nFramework signals found:");
     const frameworkHits = FRAMEWORK_SIGNALS.filter((f) => f.test(html, scripts));
