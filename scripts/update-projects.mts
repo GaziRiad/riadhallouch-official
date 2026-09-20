@@ -345,9 +345,9 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
   // live site" button rather than pointing at something that might be
   // stale or gone. Year "2025" from the site's own "2025" edition badge,
   // consistent with the LinkedIn post's "9mo" timestamp against today's
-  // date. No video yet — set videoFile to a local path under
-  // scripts/assets/daas/ once the actual video file is available, same
-  // pattern as PrimePC's local screenshots.
+  // date. The demo clip is committed under scripts/assets/daas/ (same
+  // pattern as PrimePC's local screenshots) and uploaded to Sanity as a
+  // file asset by the CI run — the page plays it natively.
   daas: {
     title: "DAAS",
     meta: "Architecture research platform · Build & implementation",
@@ -365,6 +365,7 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
     stack: ["Next.js", "Tailwind CSS", "Sanity", "Vercel"],
     onHomepage: true,
     featured: false,
+    videoFile: "scripts/assets/daas/demo.mp4",
     screenshots: {
       cover: "https://daas-xvf4.vercel.app/",
     },
