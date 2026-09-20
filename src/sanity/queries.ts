@@ -29,7 +29,8 @@ const SITE_SETTINGS_QUERY = /* groq */ `
 // otherwise crash every .map()/.length call downstream.
 const PROJECT_FIELDS = /* groq */ `
   "slug": slug.current, index, title, meta, gridCategory, year, summary, body,
-  coverImage, "detailImages": coalesce(detailImages, []), videoEmbedUrl,
+  coverImage, "detailImages": coalesce(detailImages, []),
+  "videoUrl": video.asset->url,
   narrativeProblem, narrativeApproach, narrativeResult,
   "stack": coalesce(stack, []), "metrics": coalesce(metrics, []),
   liveUrl, repoUrl, featured, onHomepage,

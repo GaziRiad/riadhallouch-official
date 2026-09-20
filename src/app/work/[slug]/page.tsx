@@ -116,21 +116,21 @@ export default async function CaseStudyPage({
           )}
         </Reveal>
 
-        {project.videoEmbedUrl ? (
+        {project.videoUrl ? (
           <Reveal className="mt-10 sm:mt-12">
             <span className="text-accent-ink font-mono text-[11px] font-medium tracking-[.06em] uppercase">
               See it in action
             </span>
-            <div className="border-ink-09 bg-ink-07 mt-4 flex justify-center overflow-hidden rounded border">
-              <iframe
-                src={project.videoEmbedUrl}
-                height="640"
-                width="100%"
-                className="block max-w-[540px]"
-                allowFullScreen
-                title={`${project.title} — video`}
-              />
-            </div>
+            {/* preload="none": nothing downloads until the visitor presses play — a video here shouldn't cost this page a single extra byte on load. */}
+            <video
+              className="border-ink-09 mt-4 aspect-video w-full rounded border bg-black"
+              controls
+              preload="none"
+              playsInline
+              poster={coverUrl}
+            >
+              <source src={project.videoUrl} />
+            </video>
           </Reveal>
         ) : null}
 

@@ -100,8 +100,8 @@ type ProjectPatch = {
   onHomepage?: boolean;
   featured?: boolean;
   screenshots?: ScreenshotSpec;
-  /** Optional post embed (e.g. LinkedIn) rendered as an iframe on the case study page. */
-  videoEmbedUrl?: string;
+  /** Optional local video file (e.g. "scripts/assets/<slug>/demo.mp4"), uploaded as a Sanity file asset and rendered as a native, click-to-play video on the case study page. */
+  videoFile?: string;
   /** Optional featured pull-quote shown at the end of the case study page (not the homepage testimonials marquee). */
   testimonialQuote?: string;
   testimonialName?: string;
@@ -329,34 +329,45 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
   //     what Riad remembered, this preview does have real images.
   //  2. scripts/detect-stack.mts against the LinkedIn post Riad linked —
   //     worked without hitting a login wall (public post view) and
-  //     returned Riad's own post text: client is the Sharjah Architecture
-  //     Triennial, design by Olfa Farhat (same designer credited on
-  //     Wimbee), Riad's role was implementation.
+  //     returned Riad's own post text: design by Olfa Farhat (same
+  //     designer credited on Wimbee), Riad's role was implementation.
+  //  3. Follow-up web research on decolonizing.ps and theafricainstitute.org
+  //     (the program's own subpages) corrected two things the LinkedIn
+  //     post alone didn't make clear: DAAS is initiated and led by DAAR —
+  //     architects Sandi Hilal and Alessandro Petti — run in collaboration
+  //     with the Sharjah Architecture Triennial, not simply a program
+  //     "under" the Triennial; and Olfa Farhat, beyond designing the site,
+  //     is herself listed as one of the program's own 2025 Sharjah
+  //     participants (a conversation host in the Site in Conversations
+  //     public programme).
   // liveUrl deliberately omitted — the Vercel preview isn't a production
   // domain and Riad doesn't know the current live status, so no "Visit
   // live site" button rather than pointing at something that might be
   // stale or gone. Year "2025" from the site's own "2025" edition badge,
   // consistent with the LinkedIn post's "9mo" timestamp against today's
-  // date. videoEmbedUrl uses LinkedIn's own public embed URL format for
-  // the post (not a re-hosted copy of the video) — see project.ts.
+  // date. No video yet — the LinkedIn full-post iframe embed looked bad
+  // (renders the whole post: reactions, comment box, share button, not
+  // just the clip) and got replaced with a native <video> element that
+  // only loads on click; set videoFile to a local path under
+  // scripts/assets/daas/ once the actual video file is available, same
+  // pattern as PrimePC's local screenshots.
   daas: {
     title: "DAAS",
     meta: "Architecture research platform · Build & implementation",
     gridCategory: "Web · Architecture",
     year: "2025",
     summary:
-      "A research platform for the Sharjah Architecture Triennial's DAAS program — designed by Olfa Farhat, built by me to make a dense, multi-city body of architectural research fast and easy to actually navigate.",
-    body: "DAAS (Decolonizing Architecture Advanced Studies) is a research program under the Sharjah Architecture Triennial, one of the most prominent architecture and urbanism platforms across the Middle East, North and East Africa, and Asia. I built the platform in Next.js with Tailwind CSS and Sanity, working from Olfa Farhat's design and concept. My job was turning a genuinely complex body of work — open calls, city-specific editions like Daas In Cairo and Daas In Sharjah, participant profiles, public programming — into something people could explore without getting lost.",
+      "A research platform for DAAS, the Decolonizing Architecture Art Studies program DAAR (Sandi Hilal and Alessandro Petti) runs with the Sharjah Architecture Triennial — designed by Olfa Farhat, built by me to make a dense, multi-city body of architectural research fast and easy to actually navigate.",
+    body: "DAAS (Decolonizing Architecture Art Studies) is a research and education program initiated by DAAR — architects Sandi Hilal and Alessandro Petti — and run in collaboration with the Sharjah Architecture Triennial, one of the most prominent architecture and urbanism platforms across the Middle East, North and East Africa, and Asia. I built the platform in Next.js with Tailwind CSS and Sanity, working from Olfa Farhat's design and concept — Olfa is also one of the program's own 2025 Sharjah participants. My job was turning a genuinely complex body of work — open calls, city-specific editions like Daas In Cairo and Daas In Sharjah, participant profiles, public programming — into something people could explore without getting lost.",
     narrativeProblem:
-      "Architectural research platforms tend to bury the work: dense text, inconsistent navigation, no clear path through years of programming spread across multiple cities and editions. DAAS needed the opposite — information legible at a glance, a way to move through participants, editions, and public programs without friction, and a build that held up to the Triennial's own design standards rather than reading like an academic afterthought.",
+      "Architectural research platforms tend to bury the work: dense text, inconsistent navigation, no clear path through years of programming spread across multiple cities and editions. DAAS needed the opposite — information legible at a glance, a way to move through participants, editions, and public programs without friction, and a build that held up to the program's own design standards rather than reading like an academic afterthought.",
     narrativeApproach:
-      "Olfa Farhat led the design and conception; I built it in Next.js with Tailwind CSS, wired to Sanity so the Triennial's team can manage editions, participants, and programming without needing a developer for every update. The build prioritized exactly what the brief called for: information easy to understand at a glance, navigation without friction, and an experience fast and clean enough to match the Triennial's own identity rather than compete with it.",
+      "Olfa Farhat led the design and conception — herself one of the program's 2025 Sharjah participants; I built it in Next.js with Tailwind CSS, wired to Sanity so the program's team can manage editions, participants, and programming without needing a developer for every update. The build prioritized exactly what the brief called for: information easy to understand at a glance, navigation without friction, and an experience fast and clean enough to match the Triennial's own identity rather than compete with it.",
     narrativeResult:
-      "The site organizes DAAS's programming — open calls like Daas In Cairo, city editions like Daas In Sharjah: Site In Conversations — into something genuinely navigable, for a client where the research and the participants are the point and the site's only job is to get out of the way.",
+      "The site organizes DAAS's programming — open calls like Daas In Cairo, city editions like Daas In Sharjah: Site In Conversations — into something genuinely navigable, for a program where the research and the participants are the point and the site's only job is to get out of the way.",
     stack: ["Next.js", "Tailwind CSS", "Sanity", "Vercel"],
     onHomepage: true,
     featured: false,
-    videoEmbedUrl: "https://www.linkedin.com/embed/feed/update/urn:li:activity:7404444896067235843",
     screenshots: {
       cover: "https://daas-xvf4.vercel.app/",
     },
@@ -478,6 +489,33 @@ async function resolveScreenshots(spec: ScreenshotSpec) {
   return { coverImage, detailImages };
 }
 
+const VIDEO_CONTENT_TYPES: Record<string, string> = {
+  ".mp4": "video/mp4",
+  ".mov": "video/quicktime",
+  ".webm": "video/webm",
+  ".m4v": "video/x-m4v",
+};
+
+type SanityFileRef = {
+  _type: "file";
+  asset: { _type: "reference"; _ref: string };
+};
+
+async function uploadLocalVideo(relPath: string): Promise<SanityFileRef | null> {
+  const absPath = path.resolve(root, relPath);
+  let buffer: Buffer;
+  try {
+    buffer = fs.readFileSync(absPath);
+  } catch {
+    console.warn(`  ! Video file not found: ${relPath}`);
+    return null;
+  }
+  const contentType = VIDEO_CONTENT_TYPES[path.extname(relPath).toLowerCase()] ?? "video/mp4";
+  console.log(`  Uploading video (${relPath}, ${(buffer.length / 1024 / 1024).toFixed(1)} MB)...`);
+  const asset = await client.assets.upload("file", buffer, { filename: path.basename(relPath), contentType });
+  return { _type: "file", asset: { _type: "reference", _ref: asset._id } };
+}
+
 const baseId = (id: string) => (id.startsWith("drafts.") ? id.slice("drafts.".length) : id);
 
 async function main() {
@@ -498,7 +536,7 @@ async function main() {
       slug,
     });
 
-    const { screenshots, year, ...textFields } = CASE_STUDIES[slug];
+    const { screenshots, year, videoFile, ...textFields } = CASE_STUDIES[slug];
     const patch: Record<string, unknown> = { ...textFields };
 
     if (screenshots) {
@@ -506,6 +544,11 @@ async function main() {
       const { coverImage, detailImages } = await resolveScreenshots(screenshots);
       if (coverImage) patch.coverImage = coverImage;
       if (detailImages.length) patch.detailImages = detailImages;
+    }
+
+    if (videoFile) {
+      const video = await uploadLocalVideo(videoFile);
+      if (video) patch.video = video;
     }
 
     if (!ids.length) {
