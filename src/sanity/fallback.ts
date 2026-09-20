@@ -14,7 +14,7 @@ export const fallbackSiteSettings: SiteSettings = {
     "Portfolio of Riad Hallouch, a senior Next.js developer specializing in AI integration, Sanity, and MVP builds. 30+ projects delivered, 5.00 average rating, 24 five-star reviews, 100% job success on Upwork.",
   availabilityBadge: "Available for work",
   location: "Remote — GMT+1",
-  email: "hello@riadhallouch.com",
+  email: "riadhallouch447@gmail.com",
   // TODO: replace with your production domain before deploying.
   url: "https://riadhallouch.com",
   keywords: [
