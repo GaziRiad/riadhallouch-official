@@ -117,6 +117,33 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       details: ["https://www.wimbeetech.com/boosters/profilink-en", "https://www.wimbeetech.com/contactUs"],
     },
   },
+  // Researched via scripts/detect-stack.mts (this sandbox can't reach the
+  // site directly) — Next.js + Tailwind confirmed by class-name density,
+  // Vercel confirmed via response headers, no CMS fingerprint matched.
+  // Year defaults to the current year in update-projects.mts since it
+  // isn't independently verifiable from the live site.
+  stratalytic: {
+    title: "Stratalytic",
+    meta: "AI consultancy website · Solo build",
+    gridCategory: "Web · AI Consultancy",
+    summary:
+      "Bilingual marketing site for a Dutch data science and AI consultancy — built solo on Next.js, structured around proving ROI before a prospect ever talks to sales.",
+    body: "Stratalytic is a Netherlands-based data science and AI consultancy that builds forecasting models, workflow automation, and the data infrastructure underneath both for SMEs — with a distinctive angle: they combine implementation with WBSO and other Dutch R&D subsidy programs to cut a client's net cost. I built their site solo, end to end, in Next.js on Vercel: a Dutch/English site with a repeatable case-study template, a booking flow that skips the usual contact form, and content built around how the business actually sells — proof before a proposal.",
+    narrativeProblem:
+      "An AI consultancy selling forecasting and automation work has a narrower credibility problem than most B2B sites: the visitor is often technical enough to be skeptical of vague AI claims. Stratalytic's actual differentiator — a free scoping call that ends in real numbers, and stacking government subsidies to lower the net price — needed to read clearly in Dutch and English both, not as a site with a translation bolted onto one 'real' language.",
+    narrativeApproach:
+      "I built the Dutch and English versions as equal, first-class routes in the same Next.js codebase rather than a translated layer sitting on top of one primary site. The case studies — a car-parts retailer's quote-prediction model, a manufacturer's demand forecasting, a retailer's personalization engine, among others — follow one repeatable template: client and sector up top, the problem stated plainly, the technical approach as numbered steps, then a results grid with a client quote. A new client win goes in without redesigning a page each time. The site also skips the usual contact-form funnel: the primary path from almost any page is straight into booking a 30-minute call, matching how Stratalytic actually wants to sell — a real conversation, not a form sitting in a queue.",
+    narrativeResult:
+      "Both language versions run from one Next.js codebase on Vercel, with case-study and service pages statically generated for fast loads. The homepage leads with real client numbers — €778K saved, 28% higher conversion, 84% quote-prediction accuracy — directly into the booking flow, and the case-study template has already absorbed five client wins across automotive, retail, manufacturing, and travel without a single one-off page build.",
+    stack: ["Next.js", "Tailwind CSS", "Vercel"],
+    liveUrl: "https://stratalytic.nl/",
+    onHomepage: true,
+    featured: false,
+    screenshots: {
+      cover: "https://stratalytic.nl/",
+      details: ["https://stratalytic.nl/cases/retailer-personalization", "https://stratalytic.nl/subsidie-wbso"],
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
