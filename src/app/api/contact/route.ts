@@ -64,7 +64,17 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error("Failed to send contact email via Web3Forms", error);
-    return NextResponse.json({ error: "Failed to send message." }, { status: 502 });
+    // `detail` carries Web3Forms' own rejection reason ("invalid access key",
+    // a domain restriction, and so on). The form keeps showing the friendly
+    // `error`, so this is only visible in the response body — enough to
+    // diagnose a delivery failure without shell access to the runtime logs.
+    return NextResponse.json(
+      {
+        error: "Failed to send message.",
+        detail: error instanceof Error ? error.message : String(error),
+      },
+      { status: 502 }
+    );
   }
 
   return NextResponse.json({ ok: true });
