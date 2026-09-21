@@ -134,13 +134,31 @@ async function captureScreenshot(url: string, selector?: string): Promise<Buffer
     if (selector) {
       const target = page.locator(selector).first();
       await target.waitFor({ state: "attached", timeout: 15000 });
-      await target.evaluate((el, headroom) => {
+      const report = await target.evaluate((el, headroom) => {
+        const before = window.scrollY;
         el.scrollIntoView({ block: "start" });
         window.scrollBy(0, -headroom);
+        return {
+          tag: el.tagName,
+          text: (el.textContent ?? "").trim().slice(0, 60),
+          docTop: Math.round(el.getBoundingClientRect().top + window.scrollY),
+          before,
+          after: window.scrollY,
+          pageHeight: document.documentElement.scrollHeight,
+        };
       }, SECTION_HEADROOM);
+      // Which element matched and whether the page actually moved. A
+      // scroll that silently no-ops looks exactly like a successful one
+      // from the outside, and produces a second copy of the hero.
+      console.log(
+        `    matched <${report.tag}> "${report.text}" at y=${report.docTop}; ` +
+          `scrollY ${report.before} → ${report.after} (page ${report.pageHeight}px)`
+      );
       // Sections below the fold usually animate in on scroll, so this
       // wait is not optional the way the one above is.
       await page.waitForTimeout(2500);
+      const settled = await page.evaluate(() => window.scrollY);
+      if (settled !== report.after) console.log(`    scroll settled at ${settled}`);
     }
 
     return await page.screenshot({ type: "png" });
