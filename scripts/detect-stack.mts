@@ -128,6 +128,14 @@ async function inspect(url: string) {
       if (responseHeaders[key]) console.log(`  ${key}: ${responseHeaders[key]}`);
     }
 
+    // Session cookie names are often the only thing that identifies a
+    // server-rendered app's backend from outside: frameworks each ship a
+    // distinctive default (laravel_session, csrftoken, connect.sid, and so
+    // on). Names only — never values, which are credentials.
+    const cookieNames = [...new Set((await page.context().cookies()).map((c) => c.name))].sort();
+    console.log("\nCookie names set (backend fingerprint):");
+    console.log(cookieNames.length ? cookieNames.map((c) => `  - ${c}`).join("\n") : "  (none set)");
+
     console.log("\nDistinct script/asset hosts:");
     const hosts = new Set(
       scripts
