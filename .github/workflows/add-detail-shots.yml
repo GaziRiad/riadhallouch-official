@@ -1,0 +1,30 @@
+name: Add detail shots to a project
+
+# Manual only — no push trigger, so this can never fire as a side effect
+# of committing something else. It writes exactly one field
+# (detailImages) on the one slug given below; see the header comment in
+# scripts/add-detail-shots.mts for why that guarantee matters here.
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Project slug to add detail shots to (e.g. amuse)"
+        required: true
+      sources:
+        description: "Space-separated: URLs to capture, or file:scripts/assets/<slug>/shot.png"
+        required: true
+
+jobs:
+  add-detail-shots:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npx tsx scripts/add-detail-shots.mts ${{ inputs.slug }} ${{ inputs.sources }}
+        env:
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: production
+          SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}

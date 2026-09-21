@@ -136,6 +136,29 @@ async function inspect(url: string) {
     console.log("\nCookie names set (backend fingerprint):");
     console.log(cookieNames.length ? cookieNames.map((c) => `  - ${c}`).join("\n") : "  (none set)");
 
+    // Same-origin link targets, deduped by path. Reading a site's real
+    // page structure from outside is the difference between capturing the
+    // pages it actually has and guessing at URLs that 404.
+    const internalPaths = await page.$$eval(
+      "a[href]",
+      (els, origin) => {
+        const paths = els
+          .map((el) => {
+            try {
+              const parsed = new URL((el as HTMLAnchorElement).href);
+              return parsed.origin === origin ? parsed.pathname.replace(/\/$/, "") || "/" : null;
+            } catch {
+              return null;
+            }
+          })
+          .filter((p): p is string => Boolean(p));
+        return [...new Set(paths)].sort();
+      },
+      new URL(url).origin
+    );
+    console.log("\nSame-origin link paths (site structure):");
+    console.log(internalPaths.length ? internalPaths.map((p) => `  - ${p}`).join("\n") : "  (none)");
+
     console.log("\nDistinct script/asset hosts:");
     const hosts = new Set(
       scripts
