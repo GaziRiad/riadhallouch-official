@@ -143,7 +143,7 @@ async function captureScreenshot(url: string, selector?: string): Promise<Buffer
     }
 
     const shot = await page.screenshot({ type: "png" });
-    if (dryRun || outputDir) await printThumbnail(page, shot, selector ?? url);
+    if (dryRun) await printThumbnail(page, shot, selector ?? url);
     return shot;
   } finally {
     await browser.close();
@@ -177,16 +177,21 @@ async function printThumbnail(page: import("playwright").Page, png: Buffer, labe
     const img = new Image();
     img.src = dataUrl;
     await img.decode();
-    const width = 640;
+    // Small on purpose: this has to survive being read back out of a CI
+    // log, and a full-size thumbnail makes that log too big to fetch.
+    // Framing is judgeable at this size; sharpness is not the question.
+    const width = 420;
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = Math.round((img.height / img.width) * width);
     canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.6).split(",")[1];
+    return canvas.toDataURL("image/jpeg", 0.5).split(",")[1];
   }, `data:image/png;base64,${png.toString("base64")}`);
 
   console.log(`--- THUMB BEGIN ${label} ---`);
-  for (let i = 0; i < jpeg.length; i += 400) console.log(`THUMB ${jpeg.slice(i, i + 400)}`);
+  // Few long lines rather than many short ones — every log line carries a
+  // timestamp prefix, and that overhead is what blows the size up.
+  for (let i = 0; i < jpeg.length; i += 4000) console.log(`THUMB ${jpeg.slice(i, i + 4000)}`);
   console.log(`--- THUMB END ${label} ---`);
 }
 
