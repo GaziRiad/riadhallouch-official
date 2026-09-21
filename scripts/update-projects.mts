@@ -375,6 +375,47 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       cover: "https://daas-xvf4.vercel.app/",
     },
   },
+  // Riad designed and built the portal and the application behind its
+  // login, with a lead backend developer on the data and API side, over
+  // about three months in 2025.
+  //
+  // prodatamg.com is deliberately absent: the detect-stack workflow found
+  // it is WordPress and its own footer credits "Website Design by Higher
+  // Images", so it is neither Riad's work nor safe to screenshot here. The
+  // client is named, their marketing site is not claimed.
+  //
+  // Stack is only what the detector could verify on the login page:
+  // Tailwind (37.4% utility-class density) and nginx 1.24.0 on Ubuntu, no
+  // JS framework signal, so server-rendered. The backend is genuinely
+  // undetectable from outside — the app is behind auth, sets no cookie
+  // before login and sends no x-powered-by — so it is left out rather than
+  // guessed. Add the real backend and database in the Studio.
+  //
+  // Cover is the login screen: Riad's design, public, and showing none of
+  // the clients' commercial data that sits behind it.
+  prodata: {
+    title: "ProData Agency Portal",
+    meta: "White-label ad platform · ~3 months",
+    gridCategory: "Web App · AdTech",
+    year: "2025",
+    summary:
+      "A white-label agency portal for a US programmatic advertising company — designed and built so their clients can run campaigns across display, video, audio, geo-fencing and out-of-home from one place.",
+    body: "ProData Media Group is a Florida-based programmatic advertising company selling across six channels, behind an in-house DSP that runs bot detection on every campaign. The Agency Portal is the surface their clients actually work in — the white-label platform behind the login. I designed it and built the application over about three months, alongside a lead backend developer who owned the data model and the API. ProData's public marketing site is separate work by another agency; this case study covers the portal only.",
+    narrativeProblem:
+      "Programmatic advertising is sold on trust in numbers: an agency signing in wants to know where the spend went, what it bought, and whether the traffic was real — and a platform that makes that hard to read costs the company the client. This one is also white-label, so it isn't one company's dashboard but a surface several agencies put their own name on, each with their own clients underneath. That ruled out designing for a single tidy path through the product, and it meant every screen had to stay readable when a campaign runs across six channels at once.",
+    narrativeApproach:
+      "I designed the interface and built the application's client side — layout, navigation, and the screens agencies work in day to day — in Tailwind CSS on a server-rendered stack, while the lead backend developer owned the data model and the API underneath it. Because the platform is white-label, the design had to stay neutral enough to carry another agency's branding while holding the same patterns from one screen to the next, so that nobody has to relearn the product as they move through it.",
+    narrativeResult:
+      "The portal runs as ProData's white-label platform: the place their agency clients sign in to work across display, retargeting, video, geo-fencing, audio and out-of-home. What sits behind the login is those clients' commercial data, so this case study shows the platform's front door and describes the rest rather than putting it on screen.",
+    stack: ["Tailwind CSS", "nginx"],
+    metrics: [],
+    liveUrl: "https://agencyportal.prodata.media/login",
+    onHomepage: true,
+    featured: false,
+    screenshots: {
+      cover: "https://agencyportal.prodata.media/login",
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
