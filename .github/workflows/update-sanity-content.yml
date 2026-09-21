@@ -1,10 +1,12 @@
 name: Update Sanity content
 
 # Runs scripts/update-projects.mts automatically whenever it changes on
-# main — patches project text fields and (re)captures + uploads live-site
-# screenshots via Playwright. GitHub's runners have normal internet
-# access, unlike the sandbox this repo is often edited from, so this is
-# where the screenshot/upload step actually executes.
+# main — creates project documents for slugs that don't have one yet,
+# capturing and uploading live-site screenshots via Playwright. GitHub's
+# runners have normal internet access, unlike the sandbox this repo is
+# often edited from, so this is where the capture actually executes.
+# Projects that already exist are skipped untouched, so a run triggered by
+# one new case study cannot rewrite any of the others.
 #
 # One-time setup required in this repo's Settings → Secrets and
 # variables → Actions:

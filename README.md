@@ -96,7 +96,9 @@ This publishes it for free to `https://<your-project-name>.sanity.studio` via Sa
 
 ### Adding case studies (automated)
 
-`scripts/update-projects.mts` holds a `CASE_STUDIES` map — text fields plus optional screenshot URLs, keyed by the project's slug. It patches an existing project document (create the document with its slug in the Studio first) and, if a `screenshots` entry is given, captures real screenshots of the live site with Playwright and uploads them as the cover/detail images.
+`scripts/update-projects.mts` holds a `CASE_STUDIES` map — text fields plus optional screenshot URLs, keyed by the project's slug. For a slug that has no document yet it creates one and, if a `screenshots` entry is given, captures real screenshots of the live site with Playwright and uploads them as the cover/detail images.
+
+**It never touches a project that already exists.** Existence is checked before any capture or write, so adding an entry for a new project cannot rewrite the copy or re-capture the covers of the others — it used to do exactly that, discarding Studio edits. Once a project exists, edit it in the Studio; this script only bootstraps new ones. To rebuild one from this file, delete its document first.
 
 **Fully automated, once set up:** a GitHub Actions workflow (`.github/workflows/update-sanity-content.yml`) runs this script automatically on every push to `main` that touches `scripts/update-projects.mts` — no local run required. One-time setup, in this repo's GitHub Settings → Secrets and variables → Actions:
 
@@ -106,7 +108,7 @@ This publishes it for free to `https://<your-project-name>.sanity.studio` via Sa
 | `SANITY_API_WRITE_TOKEN` | an **Editor**-permission token from [sanity.io/manage](https://www.sanity.io/manage) → your project → API → Tokens | Secret |
 | `SANITY_DATASET` | `production` (optional — defaults to `production` if not set) | Variable |
 
-After that, adding a case study is just editing `CASE_STUDIES` and pushing — the workflow handles the rest, screenshots included.
+After that, adding a case study is just editing `CASE_STUDIES` and pushing — the workflow handles the rest, screenshots included. Projects already in the Studio are left alone on every run.
 
 **Running it locally instead** works the same way (`npm run update:projects`), but needs `SANITY_API_WRITE_TOKEN` in `.env.local` and Playwright's browser installed once (`npx playwright install chromium`) for the screenshot step; without that install, the script still applies the text fields and just skips screenshots with a warning.
 

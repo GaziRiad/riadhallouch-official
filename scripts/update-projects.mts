@@ -1,9 +1,16 @@
 /**
- * Applies drafted case-study copy — and screenshots of the live site — to
- * project documents by slug, keyed in CASE_STUDIES below. Creates the
- * document if the slug doesn't exist yet (auto-assigning the next index
- * and sort order), otherwise patches the existing one — no manual Studio
- * step required either way.
+ * Creates project documents — with drafted case-study copy and screenshots
+ * of the live site — for the slugs in CASE_STUDIES below, auto-assigning
+ * the next index and sort order.
+ *
+ * Create-only, deliberately. A slug that already has a document is skipped
+ * before anything is captured or written, because once a project exists the
+ * Studio owns it: this used to re-patch every entry on every run, so adding
+ * one case study silently rewrote the copy and re-captured the covers of
+ * all the others, discarding edits made in the Studio. Fix a published
+ * project in the Studio, not here. To rebuild one from this file, delete
+ * its document first — that is an explicit choice rather than a side
+ * effect of adding something unrelated.
  *
  * A screenshot entry can also be `{ file: "assets/<slug>/name.png" }`
  * instead of a URL, for pages the pipeline can't capture itself (an
@@ -21,10 +28,8 @@
  * on every push that touches this file, using a Playwright container
  * that already has the browser installed — so once the
  * SANITY_API_WRITE_TOKEN secret is set on the repo, this never needs to
- * be run by hand again.
- *
- * On an existing document, only patches the fields listed per project —
- * everything else (year, order, etc. if not listed) is left untouched.
+ * be run by hand again. A run that finds every slug already present
+ * writes nothing at all.
  */
 import { createClient } from "@sanity/client";
 import fs from "node:fs";
@@ -514,8 +519,6 @@ async function uploadLocalVideo(relPath: string): Promise<SanityFileRef | null> 
   return { _type: "file", asset: { _type: "reference", _ref: asset._id } };
 }
 
-const baseId = (id: string) => (id.startsWith("drafts.") ? id.slice("drafts.".length) : id);
-
 async function main() {
   const slugs = Object.keys(CASE_STUDIES);
   if (!slugs.length) {
@@ -524,73 +527,54 @@ async function main() {
   }
 
   for (const slug of slugs) {
-    // Fetch every matching _id, not just the first: a document can exist
-    // as a published copy, a draft copy, or both — and Sanity's editor
-    // always shows the draft over the published version when a draft
-    // exists. Patching only the published id (as this used to do) left
-    // Studio showing a stale draft with the old content, even though the
-    // write itself "succeeded".
+    // Existence is checked before anything else runs — no capture, no
+    // upload, no write. Once a project exists it belongs to whoever edits
+    // it in the Studio, and adding an unrelated entry to CASE_STUDIES must
+    // never rewrite it. A draft-only document counts as existing, since
+    // the Studio shows a draft over its published copy.
     const ids = await client.fetch<string[]>(`*[_type == "project" && slug.current == $slug]._id`, {
       slug,
     });
+    if (ids.length) {
+      console.log(`· "${slug}" already exists — left untouched (edit it in the Studio).`);
+      continue;
+    }
 
     const { screenshots, year, videoFile, ...textFields } = CASE_STUDIES[slug];
-    const patch: Record<string, unknown> = { ...textFields };
+    if (!textFields.title) {
+      console.error(`✗ "${slug}" is new but has no title in CASE_STUDIES — skipping.`);
+      continue;
+    }
+
+    const doc: Record<string, unknown> = { ...textFields };
 
     if (screenshots) {
       console.log(`Capturing screenshots for "${slug}"...`);
       const { coverImage, detailImages } = await resolveScreenshots(screenshots);
-      if (coverImage) patch.coverImage = coverImage;
-      if (detailImages.length) patch.detailImages = detailImages;
+      if (coverImage) doc.coverImage = coverImage;
+      if (detailImages.length) doc.detailImages = detailImages;
     }
 
     if (videoFile) {
       const video = await uploadLocalVideo(videoFile);
-      if (video) patch.video = video;
+      if (video) doc.video = video;
     }
 
-    if (!ids.length) {
-      // No document with this slug anywhere — create one instead of
-      // requiring it to already exist in the Studio.
-      if (!textFields.title) {
-        console.error(`✗ "${slug}" has no existing document and no title in CASE_STUDIES — skipping.`);
-        continue;
-      }
-      const [maxOrder, count] = await Promise.all([
-        client.fetch<number | null>(`math::max(*[_type == "project"].order)`),
-        client.fetch<number>(`count(*[_type == "project"])`),
-      ]);
-      const order = (maxOrder ?? -1) + 1;
-      const index = String(count + 1).padStart(2, "0");
-      const created = await client.create({
-        _type: "project",
-        slug: { _type: "slug", current: slug },
-        index,
-        year: year ?? String(new Date().getFullYear()),
-        order,
-        ...patch,
-      });
-      console.log(`✓ Created "${slug}" (${created._id}) — index ${index}, order ${order}`);
-      continue;
-    }
-
-    const baseIds = [...new Set(ids.map(baseId))];
-    if (baseIds.length > 1) {
-      console.warn(
-        `  ! Found ${baseIds.length} different documents with slug "${slug}" (not just a draft/published pair of the same one) — updating all of them. You likely have a duplicate to delete in the Studio.`
-      );
-    }
-
-    for (const bid of baseIds) {
-      // Patch whichever of the draft/published pair actually exist.
-      const patched: string[] = [];
-      for (const candidateId of [bid, `drafts.${bid}`]) {
-        if (!ids.includes(candidateId)) continue;
-        await client.patch(candidateId).set(patch).commit();
-        patched.push(candidateId.startsWith("drafts.") ? "draft" : "published");
-      }
-      console.log(`✓ Updated "${slug}" (${bid}) — wrote: ${patched.join(" + ")}`);
-    }
+    const [maxOrder, count] = await Promise.all([
+      client.fetch<number | null>(`math::max(*[_type == "project"].order)`),
+      client.fetch<number>(`count(*[_type == "project"])`),
+    ]);
+    const order = (maxOrder ?? -1) + 1;
+    const index = String(count + 1).padStart(2, "0");
+    const created = await client.create({
+      _type: "project",
+      slug: { _type: "slug", current: slug },
+      index,
+      year: year ?? String(new Date().getFullYear()),
+      order,
+      ...doc,
+    });
+    console.log(`✓ Created "${slug}" (${created._id}) — index ${index}, order ${order}`);
   }
 }
 
