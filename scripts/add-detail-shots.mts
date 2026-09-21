@@ -134,31 +134,31 @@ async function captureScreenshot(url: string, selector?: string): Promise<Buffer
     if (selector) {
       const target = page.locator(selector).first();
       await target.waitFor({ state: "attached", timeout: 15000 });
-      const report = await target.evaluate((el, headroom) => {
-        const before = window.scrollY;
-        el.scrollIntoView({ block: "start" });
-        window.scrollBy(0, -headroom);
-        return {
-          tag: el.tagName,
-          text: (el.textContent ?? "").trim().slice(0, 60),
-          docTop: Math.round(el.getBoundingClientRect().top + window.scrollY),
-          before,
-          after: window.scrollY,
-          pageHeight: document.documentElement.scrollHeight,
-        };
-      }, SECTION_HEADROOM);
-      // Which element matched and whether the page actually moved. A
-      // scroll that silently no-ops looks exactly like a successful one
-      // from the outside, and produces a second copy of the hero.
-      console.log(
-        `    matched <${report.tag}> "${report.text}" at y=${report.docTop}; ` +
-          `scrollY ${report.before} → ${report.after} (page ${report.pageHeight}px)`
-      );
+
+      // Driven with real wheel events rather than scrollIntoView, because
+      // a page can move its content with a transform while leaving
+      // window.scrollY pinned at 0 — amuse.so does exactly that, and every
+      // programmatic scroll against it silently no-ops, yielding a second
+      // copy of the hero. A wheel event is what such a library listens
+      // for, so it is the one instruction that works on both kinds of
+      // page. Step toward the target and re-measure rather than computing
+      // one jump, since smooth scrolling lands where it likes.
+      let top = await target.evaluate((el) => el.getBoundingClientRect().top);
+      for (let step = 0; step < 40 && Math.abs(top - SECTION_HEADROOM) > 12; step++) {
+        const delta = top - SECTION_HEADROOM;
+        await page.mouse.wheel(0, Math.max(-800, Math.min(800, delta)));
+        await page.waitForTimeout(150);
+        top = await target.evaluate((el) => el.getBoundingClientRect().top);
+      }
+
       // Sections below the fold usually animate in on scroll, so this
       // wait is not optional the way the one above is.
       await page.waitForTimeout(2500);
-      const settled = await page.evaluate(() => window.scrollY);
-      if (settled !== report.after) console.log(`    scroll settled at ${settled}`);
+      const settled = await target.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+      console.log(`    section heading settled ${settled}px from the top of the shot`);
+      if (Math.abs(settled - SECTION_HEADROOM) > 200) {
+        console.warn("    ! that is far from where it was aimed — check the capture before publishing.");
+      }
     }
 
     return await page.screenshot({ type: "png" });
