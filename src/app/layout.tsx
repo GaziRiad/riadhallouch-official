@@ -4,6 +4,8 @@ import { getSiteSettings } from "@/sanity/queries";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { JsonLd } from "@/components/seo/json-ld";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -99,6 +101,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Navbar settings={settings} />
         <main className="flex-1">{children}</main>
         <Footer />
+        {/* Both no-op unless enabled for the project in Vercel, and both
+            load after the page is interactive rather than blocking it. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
