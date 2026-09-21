@@ -5,4 +5,8 @@ const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 
 export default defineCliConfig({
   api: { projectId, dataset },
+  // Pins the hostname so `sanity deploy` doesn't stop to ask for one in CI,
+  // where there's nobody to answer. Unset, the CLI uses whichever host the
+  // project already has registered.
+  studioHost: process.env.SANITY_STUDIO_HOST,
 });

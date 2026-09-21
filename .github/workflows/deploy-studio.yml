@@ -1,0 +1,58 @@
+name: Deploy Sanity Studio
+
+# The Studio is a standalone app, so Vercel never touches it — a schema
+# change under studio/ stays invisible to editors until the Studio itself is
+# rebuilt and deployed. Until then the Studio reports values it has no field
+# definitions for as "unknown fields", which reads like data loss and isn't.
+# This deploys it on every studio/ change so that can't drift again.
+#
+# One-time setup: add SANITY_AUTH_TOKEN as a repository secret — create it at
+# https://www.sanity.io/manage under API → Tokens, with "Deploy studio"
+# rights. Without it this workflow no-ops with a note instead of failing.
+# Optionally set a SANITY_STUDIO_HOST repository variable to pin the
+# hostname; unset, the CLI uses the one the project already has.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "studio/**"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: studio
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: guard
+        name: Check for a deploy token
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+        run: |
+          if [ -n "$SANITY_AUTH_TOKEN" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "SANITY_AUTH_TOKEN is not set — skipping the Studio deploy." >> "$GITHUB_STEP_SUMMARY"
+            echo "Add it under Settings → Secrets and variables → Actions, using a token with 'Deploy studio' rights from https://www.sanity.io/manage" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.ready == 'true'
+        with:
+          node-version: 22
+
+      - run: npm ci
+        if: steps.guard.outputs.ready == 'true'
+
+      - run: npx sanity deploy
+        if: steps.guard.outputs.ready == 'true'
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          SANITY_STUDIO_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: ${{ vars.SANITY_DATASET || 'production' }}
+          SANITY_STUDIO_HOST: ${{ vars.SANITY_STUDIO_HOST }}
