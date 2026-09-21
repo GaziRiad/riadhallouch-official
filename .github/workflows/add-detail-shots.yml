@@ -12,7 +12,7 @@ on:
         description: "Project slug to add detail shots to (e.g. amuse)"
         required: true
       sources:
-        description: "Space-separated: URLs to capture, or file:scripts/assets/<slug>/shot.png"
+        description: 'One per line: a URL, "<url> :: <selector>", or file:scripts/assets/<slug>/shot.png'
         required: true
 
 jobs:
@@ -23,8 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm ci
-      - run: npx tsx scripts/add-detail-shots.mts ${{ inputs.slug }} ${{ inputs.sources }}
+      # Both inputs go through the environment rather than being
+      # interpolated into the command line: a selector contains spaces and
+      # punctuation the shell would otherwise split or interpret.
+      - run: npx tsx scripts/add-detail-shots.mts "$SLUG"
         env:
+          SLUG: ${{ inputs.slug }}
+          DETAIL_SHOT_SOURCES: ${{ inputs.sources }}
           SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
           SANITY_DATASET: production
           SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}

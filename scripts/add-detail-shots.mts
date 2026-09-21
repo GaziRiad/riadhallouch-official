@@ -19,9 +19,19 @@
  *      project (plus its draft, if one exists).
  *
  * Usage: npx tsx scripts/add-detail-shots.mts <slug> <source> [<source>]
- *   <source> is a URL to capture, or file:scripts/assets/<slug>/shot.png
- *   for a page the pipeline can't reach (anything behind a login).
+ * A <source> is one of:
+ *   https://example.com/page          capture that page at the top
+ *   https://example.com :: text="Plans"   capture the section that selector
+ *                                     names, scrolled into view — the shot
+ *                                     a one-page marketing site actually
+ *                                     needs, since everything worth showing
+ *                                     sits below the fold
+ *   file:scripts/assets/<slug>/shot.png   upload as-is, no navigation, for
+ *                                     anything behind a login
  * At most two sources are used — the schema caps the gallery at two.
+ * Sources may also come from DETAIL_SHOT_SOURCES, one per line, which is
+ * how CI passes them: a selector can contain spaces, so argv word-splitting
+ * would tear it in half.
  *
  * Also runs in CI via workflow_dispatch (.github/workflows/add-detail-shots.yml),
  * which is the only way it ever fires: no push trigger, so it cannot run
@@ -46,12 +56,15 @@ try {
   // Optional — in CI the values come from repo secrets instead.
 }
 
-const [slug, ...sources] = process.argv.slice(2);
+const [slug, ...argvSources] = process.argv.slice(2);
+const envSources = (process.env.DETAIL_SHOT_SOURCES ?? "").split("\n");
+const sources = [...argvSources, ...envSources].map((s) => s.trim()).filter(Boolean);
 
 if (!slug || !sources.length) {
   console.error(
     "Usage: npx tsx scripts/add-detail-shots.mts <slug> <source> [<source>]\n" +
-      "  <source> = a URL to capture, or file:scripts/assets/<slug>/shot.png"
+      '  <source> = a URL, "<url> :: <selector>", or file:scripts/assets/<slug>/shot.png\n' +
+      "  (sources may also be passed one per line in DETAIL_SHOT_SOURCES)"
   );
   process.exit(1);
 }
@@ -91,7 +104,12 @@ async function dismissCookieConsent(page: import("playwright").Page) {
   }
 }
 
-async function captureScreenshot(url: string): Promise<Buffer> {
+// Landing the heading flush against the top edge reads as a cut-off
+// page rather than a section, so back off by this much and let the shot
+// breathe.
+const SECTION_HEADROOM = 120;
+
+async function captureScreenshot(url: string, selector?: string): Promise<Buffer> {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   try {
@@ -104,6 +122,19 @@ async function captureScreenshot(url: string): Promise<Buffer> {
     // networkidle says requests settled, not that entrance animations
     // finished — without this the hero comes back mid-fade or blank.
     await page.waitForTimeout(4000);
+
+    if (selector) {
+      const target = page.locator(selector).first();
+      await target.waitFor({ state: "attached", timeout: 15000 });
+      await target.evaluate((el, headroom) => {
+        el.scrollIntoView({ block: "start" });
+        window.scrollBy(0, -headroom);
+      }, SECTION_HEADROOM);
+      // Sections below the fold usually animate in on scroll, so this
+      // wait is not optional the way the one above is.
+      await page.waitForTimeout(2500);
+    }
+
     return await page.screenshot({ type: "png" });
   } finally {
     await browser.close();
@@ -120,10 +151,11 @@ async function resolveSource(source: string): Promise<SanityImageRef> {
     const asset = await client.assets.upload("image", buffer, { filename: path.basename(relPath) });
     return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
   }
-  console.log(`  Capturing (${source})...`);
-  const buffer = await captureScreenshot(source);
+  const [url, selector] = source.split(/\s*::\s*/, 2);
+  console.log(`  Capturing (${url}${selector ? ` at ${selector}` : ""})...`);
+  const buffer = await captureScreenshot(url, selector);
   const asset = await client.assets.upload("image", buffer, {
-    filename: `${new URL(source).hostname}-${Date.now()}.png`,
+    filename: `${new URL(url).hostname}-${Date.now()}.png`,
   });
   return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
 }
