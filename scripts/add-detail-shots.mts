@@ -33,6 +33,9 @@
  * how CI passes them: a selector can contain spaces, so argv word-splitting
  * would tear it in half.
  *
+ * Pass --dry-run to capture and print the shots without writing anything
+ * to Sanity — check the framing first, then run it for real.
+ *
  * Also runs in CI via workflow_dispatch (.github/workflows/add-detail-shots.yml),
  * which is the only way it ever fires: no push trigger, so it cannot run
  * as a side effect of committing something else.
@@ -56,7 +59,9 @@ try {
   // Optional — in CI the values come from repo secrets instead.
 }
 
-const [slug, ...argvSources] = process.argv.slice(2);
+const argv = process.argv.slice(2).filter((a) => a !== "--dry-run");
+const dryRun = process.argv.includes("--dry-run");
+const [slug, ...argvSources] = argv;
 const envSources = (process.env.DETAIL_SHOT_SOURCES ?? "").split("\n");
 const sources = [...argvSources, ...envSources].map((s) => s.trim()).filter(Boolean);
 
@@ -73,7 +78,9 @@ const projectId = process.env.SANITY_PROJECT_ID || process.env.NEXT_PUBLIC_SANIT
 const dataset = process.env.SANITY_DATASET || process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 const token = process.env.SANITY_API_WRITE_TOKEN;
 
-if (!projectId || !token) {
+// A dry run never writes, so it needs no credentials — which is what
+// makes it usable as a quick "is this the right framing?" check.
+if (!dryRun && (!projectId || !token)) {
   console.error("Missing SANITY_PROJECT_ID and/or SANITY_API_WRITE_TOKEN.");
   process.exit(1);
 }
@@ -135,7 +142,9 @@ async function captureScreenshot(url: string, selector?: string): Promise<Buffer
       await page.waitForTimeout(2500);
     }
 
-    return await page.screenshot({ type: "png" });
+    const shot = await page.screenshot({ type: "png" });
+    if (dryRun || outputDir) await printThumbnail(page, shot, selector ?? url);
+    return shot;
   } finally {
     await browser.close();
   }
@@ -154,6 +163,31 @@ function keepCopy(buffer: Buffer, name: string) {
   if (!outputDir) return;
   fs.mkdirSync(outputDir, { recursive: true });
   fs.writeFileSync(path.join(outputDir, name), buffer);
+}
+
+/**
+ * Prints a small JPEG of the capture as base64, chunked into short lines,
+ * so it survives a CI log and can be reassembled and viewed. This exists
+ * because the only thing that proves a screenshot is right is looking at
+ * it, and the machine driving this can reach a job log but not the
+ * artifact store.
+ */
+async function printThumbnail(page: import("playwright").Page, png: Buffer, label: string) {
+  const jpeg = await page.evaluate(async (dataUrl) => {
+    const img = new Image();
+    img.src = dataUrl;
+    await img.decode();
+    const width = 640;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = Math.round((img.height / img.width) * width);
+    canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.6).split(",")[1];
+  }, `data:image/png;base64,${png.toString("base64")}`);
+
+  console.log(`--- THUMB BEGIN ${label} ---`);
+  for (let i = 0; i < jpeg.length; i += 400) console.log(`THUMB ${jpeg.slice(i, i + 400)}`);
+  console.log(`--- THUMB END ${label} ---`);
 }
 
 async function resolveSource(source: string): Promise<SanityImageRef> {
@@ -194,6 +228,21 @@ async function main() {
   const wanted = sources.slice(0, 2);
   if (sources.length > wanted.length) {
     console.warn(`! ${sources.length} sources given, using the first ${wanted.length} (schema max).`);
+  }
+
+  if (dryRun) {
+    console.log(`Dry run — capturing ${wanted.length} shot(s) for "${slug}", writing nothing:`);
+    for (const source of wanted) {
+      const [url, selector] = source.split(/\s*::\s*/, 2);
+      if (source.startsWith("file:")) {
+        console.log(`  (local file ${source.slice(5)} — nothing to capture)`);
+        continue;
+      }
+      console.log(`  Capturing (${url}${selector ? ` at ${selector}` : ""})...`);
+      await captureScreenshot(url, selector);
+    }
+    console.log("Dry run complete. No document was touched.");
+    return;
   }
 
   console.log(`Adding ${wanted.length} detail shot(s) to "${slug}":`);

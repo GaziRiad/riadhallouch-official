@@ -14,6 +14,10 @@ on:
       sources:
         description: 'One per line: a URL, "<url> :: <selector>", or file:scripts/assets/<slug>/shot.png'
         required: true
+      dry_run:
+        description: "Capture and show the shots without writing to Sanity"
+        type: boolean
+        default: false
 
 jobs:
   add-detail-shots:
@@ -26,7 +30,7 @@ jobs:
       # Both inputs go through the environment rather than being
       # interpolated into the command line: a selector contains spaces and
       # punctuation the shell would otherwise split or interpret.
-      - run: npx tsx scripts/add-detail-shots.mts "$SLUG"
+      - run: npx tsx scripts/add-detail-shots.mts "$SLUG" ${{ inputs.dry_run && '--dry-run' || '' }}
         env:
           SLUG: ${{ inputs.slug }}
           DETAIL_SHOT_SOURCES: ${{ inputs.sources }}
