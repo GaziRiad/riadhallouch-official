@@ -370,6 +370,43 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       cover: "https://daas-xvf4.vercel.app/",
     },
   },
+  // Researched with scripts/detect-stack.mts via the detect-stack workflow
+  // (this sandbox can't reach the site): Next.js confirmed, Tailwind by
+  // class-name density (37.4%), GA4, served by Vercel with a warm edge
+  // cache. No CMS fingerprint matched, which is expected rather than
+  // contradictory — Sanity is read server-side, so nothing about it
+  // reaches the browser, exactly as on this portfolio.
+  //
+  // Scope per Riad: he built the public marketing site and its Sanity
+  // backend; the product behind signup is the client's own team's work, so
+  // the copy claims the front door and nothing past it. Plan tiers and
+  // prices ($0 free, $4.99/month premium) and the feature lists are quoted
+  // from the live page. Year "2025" from the site's own footer.
+  // No metrics: nothing about signups or conversion has been shared, and a
+  // marketing site's numbers belong to the client anyway.
+  amuse: {
+    title: "Amuse",
+    meta: "Product marketing site · Solo build",
+    gridCategory: "Web · AI Product",
+    year: "2025",
+    summary:
+      "The public site for an AI-powered microlearning app — built in Next.js and wired to Sanity so the team rewrites pricing, features and positioning without a developer.",
+    body: "Amuse is a microlearning product built around daily curiosity: a few AI-generated cards each day, a free tier, and a $4.99/month premium plan adding topic archives, spaced review of past lessons, and more personalized cards. I built the public site — the page that has to explain an unfamiliar idea and turn a visitor into a signup — in Next.js with Tailwind CSS, wired to Sanity so the team owns the words. The product behind the signup is built by the client's own team; this was the front door to it.",
+    narrativeProblem:
+      "A product like Amuse has to explain itself in about ten seconds. \"Daily cards that make you curious\" isn't a category anyone goes searching for, so the site can't lean on recognition the way a CRM or a booking tool can — it has to teach the concept, state the pricing plainly enough to be trusted, and convert. The second constraint was ownership: on an early product the plan tiers, the feature lists and the pitch itself get rewritten repeatedly, and none of that should need a developer or a deploy.",
+    narrativeApproach:
+      "Next.js with Tailwind CSS for the build, and everything likely to move — the pitch, the vision copy, the plan tiers and every feature bullet under them — modelled in Sanity rather than hard-coded, so changing a price or rewording a feature is an edit and not a release. Content is fetched server-side, which keeps the pages static and fast and means nothing about the CMS ships to the browser. Deployed on Vercel, with Google Analytics wired in so the team can see which parts of the pitch hold attention.",
+    narrativeResult:
+      "Amuse launched with a front door its own team runs: pricing, plan features and the positioning are all editable without touching code, which is what an early product actually needs as its wording keeps changing. It's live at amuse.so, served static from Vercel's edge cache.",
+    stack: ["Next.js", "Tailwind CSS", "Sanity", "Vercel"],
+    metrics: [],
+    liveUrl: "https://www.amuse.so/",
+    onHomepage: true,
+    featured: false,
+    screenshots: {
+      cover: "https://www.amuse.so/",
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
