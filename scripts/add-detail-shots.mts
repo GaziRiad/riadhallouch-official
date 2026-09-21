@@ -143,6 +143,19 @@ async function captureScreenshot(url: string, selector?: string): Promise<Buffer
 
 type SanityImageRef = { _type: "image"; asset: { _type: "reference"; _ref: string } };
 
+// A screenshot pipeline reports success the same way whether it caught the
+// section or a blank mid-animation frame, so every capture is also written
+// to disk when DETAIL_SHOT_OUTPUT_DIR is set. CI points it at a directory
+// it uploads as a run artifact, which makes the result reviewable instead
+// of merely green.
+const outputDir = process.env.DETAIL_SHOT_OUTPUT_DIR;
+
+function keepCopy(buffer: Buffer, name: string) {
+  if (!outputDir) return;
+  fs.mkdirSync(outputDir, { recursive: true });
+  fs.writeFileSync(path.join(outputDir, name), buffer);
+}
+
 async function resolveSource(source: string): Promise<SanityImageRef> {
   if (source.startsWith("file:")) {
     const relPath = source.slice("file:".length);
@@ -154,9 +167,9 @@ async function resolveSource(source: string): Promise<SanityImageRef> {
   const [url, selector] = source.split(/\s*::\s*/, 2);
   console.log(`  Capturing (${url}${selector ? ` at ${selector}` : ""})...`);
   const buffer = await captureScreenshot(url, selector);
-  const asset = await client.assets.upload("image", buffer, {
-    filename: `${new URL(url).hostname}-${Date.now()}.png`,
-  });
+  const filename = `${new URL(url).hostname}-${Date.now()}.png`;
+  keepCopy(buffer, filename);
+  const asset = await client.assets.upload("image", buffer, { filename });
   return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
 }
 

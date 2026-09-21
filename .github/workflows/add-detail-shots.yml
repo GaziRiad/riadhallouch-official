@@ -30,6 +30,15 @@ jobs:
         env:
           SLUG: ${{ inputs.slug }}
           DETAIL_SHOT_SOURCES: ${{ inputs.sources }}
+          DETAIL_SHOT_OUTPUT_DIR: captured-shots
           SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
           SANITY_DATASET: production
           SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+      # Uploaded so the shots can be looked at. A capture that came back
+      # blank or landed on the wrong section still passes every step above.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captured-shots
+          path: captured-shots/
+          if-no-files-found: warn
