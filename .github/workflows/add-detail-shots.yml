@@ -50,8 +50,12 @@ jobs:
         if: always()
         run: |
           [ -d captured-shots ] || exit 0
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # checkout@v4 marks the workspace safe only for its own step, in
+          # a temporary HOME it then discards, so git here sees a directory
+          # owned by someone else and refuses to treat it as a repo.
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout --orphan shot-previews
           git rm -rq --cached . || true
           git add -f captured-shots
