@@ -33,8 +33,9 @@
  * how CI passes them: a selector can contain spaces, so argv word-splitting
  * would tear it in half.
  *
- * Pass --dry-run to capture and print the shots without writing anything
- * to Sanity — check the framing first, then run it for real.
+ * Pass --dry-run to capture the shots without writing anything to Sanity.
+ * In CI the captures are pushed to the shot-previews branch either way, so
+ * the framing can be looked at before it goes live.
  *
  * Also runs in CI via workflow_dispatch (.github/workflows/add-detail-shots.yml),
  * which is the only way it ever fires: no push trigger, so it cannot run
@@ -142,9 +143,7 @@ async function captureScreenshot(url: string, selector?: string): Promise<Buffer
       await page.waitForTimeout(2500);
     }
 
-    const shot = await page.screenshot({ type: "png" });
-    if (dryRun) await printThumbnail(page, shot, selector ?? url);
-    return shot;
+    return await page.screenshot({ type: "png" });
   } finally {
     await browser.close();
   }
@@ -154,45 +153,15 @@ type SanityImageRef = { _type: "image"; asset: { _type: "reference"; _ref: strin
 
 // A screenshot pipeline reports success the same way whether it caught the
 // section or a blank mid-animation frame, so every capture is also written
-// to disk when DETAIL_SHOT_OUTPUT_DIR is set. CI points it at a directory
-// it uploads as a run artifact, which makes the result reviewable instead
-// of merely green.
+// to disk when DETAIL_SHOT_OUTPUT_DIR is set. CI commits that directory to
+// the shot-previews branch, which makes the result reviewable instead of
+// merely green.
 const outputDir = process.env.DETAIL_SHOT_OUTPUT_DIR;
 
 function keepCopy(buffer: Buffer, name: string) {
   if (!outputDir) return;
   fs.mkdirSync(outputDir, { recursive: true });
   fs.writeFileSync(path.join(outputDir, name), buffer);
-}
-
-/**
- * Prints a small JPEG of the capture as base64, chunked into short lines,
- * so it survives a CI log and can be reassembled and viewed. This exists
- * because the only thing that proves a screenshot is right is looking at
- * it, and the machine driving this can reach a job log but not the
- * artifact store.
- */
-async function printThumbnail(page: import("playwright").Page, png: Buffer, label: string) {
-  const jpeg = await page.evaluate(async (dataUrl) => {
-    const img = new Image();
-    img.src = dataUrl;
-    await img.decode();
-    // Small on purpose: this has to survive being read back out of a CI
-    // log, and a full-size thumbnail makes that log too big to fetch.
-    // Framing is judgeable at this size; sharpness is not the question.
-    const width = 420;
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = Math.round((img.height / img.width) * width);
-    canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.5).split(",")[1];
-  }, `data:image/png;base64,${png.toString("base64")}`);
-
-  console.log(`--- THUMB BEGIN ${label} ---`);
-  // Few long lines rather than many short ones — every log line carries a
-  // timestamp prefix, and that overhead is what blows the size up.
-  for (let i = 0; i < jpeg.length; i += 4000) console.log(`THUMB ${jpeg.slice(i, i + 4000)}`);
-  console.log(`--- THUMB END ${label} ---`);
 }
 
 async function resolveSource(source: string): Promise<SanityImageRef> {
@@ -244,7 +213,8 @@ async function main() {
         continue;
       }
       console.log(`  Capturing (${url}${selector ? ` at ${selector}` : ""})...`);
-      await captureScreenshot(url, selector);
+      const shot = await captureScreenshot(url, selector);
+      keepCopy(shot, `${new URL(url).hostname}-${Date.now()}.png`);
     }
     console.log("Dry run complete. No document was touched.");
     return;

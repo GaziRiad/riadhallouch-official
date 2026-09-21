@@ -22,6 +22,8 @@ on:
 jobs:
   add-detail-shots:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
@@ -38,11 +40,22 @@ jobs:
           SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
           SANITY_DATASET: production
           SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
-      # Uploaded so the shots can be looked at. A capture that came back
-      # blank or landed on the wrong section still passes every step above.
-      - uses: actions/upload-artifact@v4
+      # Every capture is committed to a branch of its own so it can be
+      # looked at — on GitHub, or by fetching the branch. A shot that came
+      # back blank or landed on the wrong section passes every step above
+      # identically, so "the job was green" proves nothing about framing.
+      # The branch is force-pushed and holds only these images; nothing
+      # reads it, and main never sees it.
+      - name: Publish the captures for review
         if: always()
-        with:
-          name: captured-shots
-          path: captured-shots/
-          if-no-files-found: warn
+        run: |
+          [ -d captured-shots ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan shot-previews
+          git rm -rq --cached . || true
+          git add -f captured-shots
+          git commit -qm "Captures for $SLUG"
+          git push -f origin shot-previews
+        env:
+          SLUG: ${{ inputs.slug }}
