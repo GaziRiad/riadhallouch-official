@@ -416,6 +416,43 @@ const CASE_STUDIES: Record<string, ProjectPatch> = {
       cover: "https://agencyportal.prodata.media/login",
     },
   },
+
+  // Stack sourcing: Next.js is confirmed twice (framework fingerprint and
+  // an x-powered-by header) and Vercel from the server header. Google APIs
+  // is Riad's own account of what he built with — nothing about it is
+  // visible from outside, since the site sets no cookies, loads no
+  // external scripts and keeps its app behind /signin. Tailwind is the one
+  // soft call: the detector read 20.1% utility-class density and rated it
+  // "possibly, low confidence", so it is listed on his say-so about his
+  // own stack, not on the measurement.
+  //
+  // metrics stays empty on purpose: the product is in early access and
+  // asking for pilot teams, so there are no numbers to quote and inventing
+  // engagement figures for a pre-launch product is the fastest way to lose
+  // a reader who checks.
+  resora: {
+    title: "Resora",
+    meta: "Research project management · 1 week",
+    gridCategory: "Web App · Research SaaS",
+    year: "2026",
+    summary:
+      "A research project management platform that pulls studies, ethics approvals, funding, collaborators, submissions and outputs into one structured workspace — designed and shipped in a one-week sprint.",
+    body: "Resora is project management built for research rather than adapted to it. Studies, ethics approvals, funding and awards, collaborators, submissions and published outputs live in one workspace instead of scattered across spreadsheets and shared drives. The product is organised around six phases of the research lifecycle — concept and planning, approvals and governance, collaboration and coordination, analysis and interpretation, manuscripts and submissions, and publication and legacy — so context carries forward instead of being rebuilt at every handover. Built on Next.js and deployed on Vercel in a one-week sprint, with Google APIs behind the workflow. It is currently in early access, taking pilot teams rather than open sign-ups.",
+    narrativeProblem:
+      "Research rarely comes apart at the analysis step. It comes apart at the seams. Spreadsheets and shared folders hold up while a project belongs to one person, then fail the moment the work becomes collaborative, regulated and long-running: the ethics approval lives in an inbox, the funding conditions live in a PDF, and the manuscript's revision history lives in somebody's memory. When that somebody changes institution, the context leaves with them. Generic task managers do not close this gap, because they model tasks — not a research lifecycle with approvals, obligations and provenance attached to each phase.",
+    narrativeApproach:
+      "The design problem was to make the lifecycle itself the structure, rather than bolt research vocabulary onto a kanban board. Six phases carry the work from concept through to publication and legacy, each holding what that phase actually needs: scope and pathways at planning, ethics and institutional requirements at approvals, roles and shared progress during collaboration, journals and revisions at submission. That same spine has to serve three quite different users without becoming three products — an individual researcher tracking their own outputs, a team coordinating without email chains, and an institution that needs oversight and continuity. It also had to sit alongside the tools researchers already use for analysis, storage and publishing rather than trying to displace them, which is a constraint on what the product refuses to do as much as on what it does.",
+    narrativeResult:
+      "Resora is live and in early access, inviting teams to pilot it. Shipping a product surface this specific inside a week only worked because the information architecture was settled first: the lifecycle drove the layout, instead of screens being designed and the model retrofitted onto them afterwards.",
+    stack: ["Next.js", "Tailwind CSS", "Google APIs", "Vercel"],
+    metrics: [],
+    liveUrl: "https://www.resora.io/",
+    onHomepage: true,
+    featured: false,
+    screenshots: {
+      cover: "https://www.resora.io/",
+    },
+  },
 };
 
 // Common cookie-consent button labels. Some sites gate hero content
